@@ -7,24 +7,29 @@ function pick(key: string, fallback = ''): string {
 }
 
 export default ({ config }: ConfigContext): ExpoConfig => {
+  // Firebase and Instagram: from env only (never commit real values).
+  // Local: .env (EXPO_PUBLIC_*). GitHub Actions: workflow env from GitHub Secrets.
+  const extraFromEnv = {
+    firebase: {
+      apiKey: pick('EXPO_PUBLIC_FIREBASE_API_KEY'),
+      authDomain: pick('EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN'),
+      projectId: pick('EXPO_PUBLIC_FIREBASE_PROJECT_ID'),
+      storageBucket: pick('EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET'),
+      messagingSenderId: pick('EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID'),
+      appId: pick('EXPO_PUBLIC_FIREBASE_APP_ID'),
+    },
+    instagram: {
+      accessToken: pick('EXPO_PUBLIC_INSTAGRAM_ACCESS_TOKEN'),
+    },
+  };
+
   return {
     name: config.name || 'Bhatia-Buzz',
     slug: config.slug || 'Bhatia-Buzz',
     ...config,
-    // Keep whatever is in app.json, but ensure extras are always present.
     extra: {
       ...(config.extra ?? {}),
-      firebase: {
-        apiKey: pick('EXPO_PUBLIC_FIREBASE_API_KEY'),
-        authDomain: pick('EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN'),
-        projectId: pick('EXPO_PUBLIC_FIREBASE_PROJECT_ID'),
-        storageBucket: pick('EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET'),
-        messagingSenderId: pick('EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID'),
-        appId: pick('EXPO_PUBLIC_FIREBASE_APP_ID'),
-      },
-      instagram: {
-        accessToken: pick('EXPO_PUBLIC_INSTAGRAM_ACCESS_TOKEN'),
-      },
+      ...extraFromEnv,
     },
     // iOS permissions for image picker
     ios: config.ios

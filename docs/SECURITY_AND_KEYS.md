@@ -5,8 +5,8 @@ This document describes how we keep API keys and secrets out of the repo and out
 ## Never commit secrets
 
 - **Do not commit** `.env`, `.env.local`, `.env.development`, `.env.production`, or any file containing API keys, tokens, or passwords.
-- These are listed in `.gitignore`. If you add new env files, add them to `.gitignore` as well.
-- Use `.env.example` (without real values) to document required variables. Never put real keys in `.env.example`.
+- **Do not put** Firebase, Instagram, or any API keys in `app.json`. `app.config.ts` is the only place that sets `extra.firebase` and `extra.instagram`, and it reads from `process.env` only: locally from `.env`, on GitHub Actions from workflow env (GitHub Secrets). So `app.json` stays safe to commit; secrets stay in env.
+- Env files are in `.gitignore`. Use `.env.example` (no real values) to document required variables.
 
 ## Local development
 

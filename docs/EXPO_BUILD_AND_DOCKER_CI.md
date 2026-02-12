@@ -12,14 +12,14 @@ Workflow file: `.github/workflows/pipeline.yml`. If any step fails, the followin
 
 **Pull requests** run only the **Tests** workflow (no Docker or Expo Build) for fast feedback.
 
-### One-time setup
+### One-time setup (required before CI can run EAS Build)
 
-1. **Link the app to EAS** (once per project, on your machine):
+1. **Link the app to EAS** (once per project, on your machine). This creates the project on Expo and writes `projectId` into your config so CI can run in non-interactive mode:
    ```bash
    npx eas-cli login
-   npx eas build:configure
+   npx eas init
    ```
-   Commit the generated `eas.json` if you changed it.
+   When prompted, create a new project or link an existing one. `eas init` will add `expo.extra.eas.projectId` to your `app.json` (or update `app.config`). **Commit and push that change** so the Pipeline workflow can run `eas build` without “EAS project not configured”.
 
 2. **Create an Expo access token** for CI:
    - Go to [expo.dev](https://expo.dev) → Account → Access tokens
