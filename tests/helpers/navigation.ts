@@ -5,7 +5,7 @@ import { Page } from '@playwright/test';
  * Uses longer timeout in CI where Expo/React can be slow to render.
  */
 export async function waitForAppReady(page: Page, timeoutMs = 20_000): Promise<void> {
-  const t = process.env.CI ? Math.max(timeoutMs, 45_000) : timeoutMs;
+  const t = process.env.CI ? Math.max(timeoutMs, 90_000) : timeoutMs;
   await page.waitForSelector('text=/Bhatia|Buzz|Sign in|Create an account|Feed|Profile/i', { timeout: t }).catch(() => null);
 }
 

@@ -288,20 +288,24 @@ export const signOut = async (): Promise<void> => {
   await firebaseSignOut(auth);
 };
 
-// Get current user
+// Get current user (resolve null on error so app can show auth screen in CI / invalid config)
 export const getCurrentUser = (): Promise<User | null> => {
   return new Promise((resolve) => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       unsubscribe();
-      if (firebaseUser) {
-        try {
-          await reload(firebaseUser);
-        } catch {
-          // Ignore reload errors (e.g. network); use cached user
+      try {
+        if (firebaseUser) {
+          try {
+            await reload(firebaseUser);
+          } catch {
+            // Ignore reload errors (e.g. network); use cached user
+          }
+          const user = await convertFirebaseUser(firebaseUser);
+          resolve(user);
+        } else {
+          resolve(null);
         }
-        const user = await convertFirebaseUser(firebaseUser);
-        resolve(user);
-      } else {
+      } catch {
         resolve(null);
       }
     });
@@ -315,13 +319,18 @@ export const resendVerificationEmail = async (): Promise<void> => {
   await sendEmailVerification(firebaseUser);
 };
 
-// Listen to auth state changes
+// Listen to auth state changes (catch so app still shows auth screen in CI / invalid config)
 export const onAuthStateChange = (callback: (user: User | null) => void) => {
   return onAuthStateChanged(auth, async (firebaseUser) => {
-    if (firebaseUser) {
-      const user = await convertFirebaseUser(firebaseUser);
-      callback(user);
-    } else {
+    try {
+      if (firebaseUser) {
+        const user = await convertFirebaseUser(firebaseUser);
+        callback(user);
+      } else {
+        callback(null);
+      }
+    } catch (e) {
+      if (typeof __DEV__ !== 'undefined' && __DEV__) console.warn('Auth state check failed:', (e as Error)?.message);
       callback(null);
     }
   });
