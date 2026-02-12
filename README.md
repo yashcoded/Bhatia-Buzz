@@ -1,13 +1,10 @@
 # Sindhi Community App
 
-[![GitHub repo](https://img.shields.io/badge/GitHub-Bhatia--Buzz-24292e?logo=github)](https://github.com/yashcoded/Bhatia-Buzz)
-[![GitHub stars](https://img.shields.io/github/stars/yashcoded/Bhatia-Buzz)](https://github.com/yashcoded/Bhatia-Buzz/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/yashcoded/Bhatia-Buzz)](https://github.com/yashcoded/Bhatia-Buzz/network/members)
-[![GitHub issues](https://img.shields.io/github/issues/yashcoded/Bhatia-Buzz)](https://github.com/yashcoded/Bhatia-Buzz/issues)
-[![License](https://img.shields.io/github/license/yashcoded/Bhatia-Buzz)](https://github.com/yashcoded/Bhatia-Buzz/blob/main/LICENSE)
-[![Tests](https://img.shields.io/badge/tests-69%20passing-brightgreen)](./docs/TEST_RESULTS.md)
+| [![GitHub repo](https://img.shields.io/badge/GitHub-bhatia--buzz-24292e?logo=github)](https://github.com/yashcoded/bhatia-buzz) | [![GitHub stars](https://img.shields.io/github/stars/yashcoded/bhatia-buzz)](https://github.com/yashcoded/bhatia-buzz/stargazers) | [![GitHub forks](https://img.shields.io/github/forks/yashcoded/bhatia-buzz)](https://github.com/yashcoded/bhatia-buzz/network/members) | [![GitHub issues](https://img.shields.io/github/issues/yashcoded/bhatia-buzz)](https://github.com/yashcoded/bhatia-buzz/issues) | [![License](https://img.shields.io/github/license/yashcoded/bhatia-buzz)](https://github.com/yashcoded/bhatia-buzz/blob/main/LICENSE) | [![Tests](https://github.com/yashcoded/bhatia-buzz/actions/workflows/tests.yml/badge.svg)](https://github.com/yashcoded/bhatia-buzz/actions/workflows/tests.yml) |
+| :---: | :---: | :---: | :---: | :---: | :---: |
+| **GitHub repo** | **Stars** | **Forks** | **Issues** | **License** | **Tests (CI)** |
 
-> Repo: [github.com/yashcoded/Bhatia-Buzz](https://github.com/yashcoded/Bhatia-Buzz) — badges above show stars, forks, and issues.
+> [github.com/yashcoded/bhatia-buzz](https://github.com/yashcoded/bhatia-buzz) — Create the repo with this **exact name** (`bhatia-buzz`) so badges and links work.
 
 A mobile application built with Expo (React Native) and Firebase for the Sindhi community, featuring Instagram-like feed, request management, and matrimonial matching.
 
@@ -232,13 +229,13 @@ See `tests/README.md` for detailed testing documentation.
 |--------|--------|
 | **E2E tests** | 69 tests, all passing — see [docs/TEST_RESULTS.md](docs/TEST_RESULTS.md) |
 | **License** | See [LICENSE](LICENSE) |
-| **GitHub** | [yashcoded/Bhatia-Buzz](https://github.com/yashcoded/Bhatia-Buzz) — stars, forks, and issues badges at the top. |
+| **GitHub** | [yashcoded/bhatia-buzz](https://github.com/yashcoded/bhatia-buzz) — stars, forks, and issues badges at the top. |
 
 To show live GitHub stats (stars, forks, issues) in the README, after pushing set the repo URL and use:
 
-- `https://img.shields.io/github/stars/yashcoded/Bhatia-Buzz`
-- `https://img.shields.io/github/forks/yashcoded/Bhatia-Buzz`
-- `https://img.shields.io/github/issues/yashcoded/Bhatia-Buzz`
+- `https://img.shields.io/github/stars/yashcoded/bhatia-buzz`
+- `https://img.shields.io/github/forks/yashcoded/bhatia-buzz`
+- `https://img.shields.io/github/issues/yashcoded/bhatia-buzz`
 
 ## Admin Features
 
