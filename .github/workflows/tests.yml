@@ -1,8 +1,7 @@
+# E2E tests on PRs (on push to main, the Pipeline workflow runs tests → docker → expo)
 name: Tests
 
 on:
-  push:
-    branches: [main, master]
   pull_request:
     branches: [main, master]
 

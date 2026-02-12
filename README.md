@@ -1,8 +1,8 @@
 # Sindhi Community App
 
-| [![GitHub repo](https://img.shields.io/badge/GitHub-bhatia--buzz-24292e?logo=github)](https://github.com/yashcoded/bhatia-buzz) | [![GitHub stars](https://img.shields.io/github/stars/yashcoded/bhatia-buzz)](https://github.com/yashcoded/bhatia-buzz/stargazers) | [![GitHub forks](https://img.shields.io/github/forks/yashcoded/bhatia-buzz)](https://github.com/yashcoded/bhatia-buzz/network/members) | [![GitHub issues](https://img.shields.io/github/issues/yashcoded/bhatia-buzz)](https://github.com/yashcoded/bhatia-buzz/issues) | [![License](https://img.shields.io/github/license/yashcoded/bhatia-buzz)](https://github.com/yashcoded/bhatia-buzz/blob/main/LICENSE) | [![Tests](https://github.com/yashcoded/bhatia-buzz/actions/workflows/tests.yml/badge.svg)](https://github.com/yashcoded/bhatia-buzz/actions/workflows/tests.yml) |
+| [![GitHub repo](https://img.shields.io/badge/GitHub-bhatia--buzz-24292e?logo=github)](https://github.com/yashcoded/bhatia-buzz) | [![GitHub stars](https://img.shields.io/github/stars/yashcoded/bhatia-buzz)](https://github.com/yashcoded/bhatia-buzz/stargazers) | [![GitHub forks](https://img.shields.io/github/forks/yashcoded/bhatia-buzz)](https://github.com/yashcoded/bhatia-buzz/network/members) | [![GitHub issues](https://img.shields.io/github/issues/yashcoded/bhatia-buzz)](https://github.com/yashcoded/bhatia-buzz/issues) | [![License](https://img.shields.io/github/license/yashcoded/bhatia-buzz)](https://github.com/yashcoded/bhatia-buzz/blob/main/LICENSE) | [![Pipeline](https://github.com/yashcoded/bhatia-buzz/actions/workflows/pipeline.yml/badge.svg)](https://github.com/yashcoded/bhatia-buzz/actions/workflows/pipeline.yml) |
 | :---: | :---: | :---: | :---: | :---: | :---: |
-| **GitHub repo** | **Stars** | **Forks** | **Issues** | **License** | **Tests (CI)** |
+| **GitHub repo** | **Stars** | **Forks** | **Issues** | **License** | **Pipeline (Tests→Docker→Expo)** |
 
 > [github.com/yashcoded/bhatia-buzz](https://github.com/yashcoded/bhatia-buzz) — Create the repo with this **exact name** (`bhatia-buzz`) so badges and links work.
 

@@ -1,16 +1,16 @@
 # Expo Build & Docker on GitHub
 
-## Docker workflow
+## Pipeline (sequential on push to main)
 
-- **Trigger:** Push or PR to `main`
-- **Job:** Builds the Docker image and runs a short smoke test (container starts, curl localhost:8081)
-- **No secrets required** for Docker (uses dummy env in smoke test)
+One workflow runs in order on every **push to `main`** (including when a PR is merged):
 
-## Expo Build workflow (IPA + AAB)
+1. **Tests** — E2E tests must pass.
+2. **Docker** — Builds the image and runs a smoke test (only if tests passed).
+3. **Expo Build** — Submits EAS Build for **iOS (IPA)** and **Android (AAB)** (only if Docker passed).
 
-- **Trigger:** Push to `main` (including when a PR is merged to `main`)
-- **Job:** Submits **EAS Build** for both **iOS (IPA)** and **Android (AAB)** using the `production` profile in `eas.json`
-- Builds run on Expo’s servers. When they finish, download the **IPA** and **AAB** from [expo.dev](https://expo.dev) → your project → Builds
+Workflow file: `.github/workflows/pipeline.yml`. If any step fails, the following steps are skipped.
+
+**Pull requests** run only the **Tests** workflow (no Docker or Expo Build) for fast feedback.
 
 ### One-time setup
 
@@ -40,7 +40,7 @@
 
 ### Getting the built IPA and AAB
 
-After a push to `main`, open the “Expo Build” workflow run in the Actions tab. The job only **submits** the builds (`--no-wait`). To get the files:
+After a push to `main`, open the **Pipeline** workflow run in the Actions tab. The Expo Build job only **submits** the builds (`--no-wait`). To get the files:
 
 1. Go to [expo.dev](https://expo.dev) → your account → project **Bhatia-Buzz** (or the linked app name)
 2. Open **Builds**
