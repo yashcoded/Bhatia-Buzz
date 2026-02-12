@@ -1,0 +1,59 @@
+# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
+
+# dependencies
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Native
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Metro
+.metro-health-check*
+
+# debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+pnpm-debug.log
+
+# package manager lock files (keep pnpm-lock.yaml)
+package-lock.json
+yarn.lock
+
+# macOS
+.DS_Store
+*.pem
+
+# Environment and secrets (never commit keys)
+.env
+.env.local
+.env.development
+.env.development.local
+.env.production
+.env.production.local
+.env*.local
+*.pem
+*.key
+
+# typescript
+*.tsbuildinfo
+
+# generated native folders
+/ios
+/android
+
+# Playwright
+test-results/
+playwright-report/
+playwright/.cache/

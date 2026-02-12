@@ -1,0 +1,20 @@
+# Bhatia Buzz – run dev environment with Docker.
+# Each machine uses its own .env (copy from .env.example); .env is never committed or shared.
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "8081:8081"   # Metro bundler
+      - "19000:19000" # Expo dev tools
+      - "19001:19001" # Expo dev tools (alternate)
+    volumes:
+      # Mount source for live reload; node_modules from image used unless you need local addons
+      - .:/app
+      - /app/node_modules  # keep container node_modules, avoid overwriting by mount
+    stdin_open: true
+    tty: true
+    command: pnpm start

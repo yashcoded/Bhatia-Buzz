@@ -1,0 +1,24 @@
+{
+  "common": {
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "submit": "Enviar",
+    "loading": "Carregando...",
+    "error": "Erro",
+    "success": "Sucesso"
+  },
+  "auth":{"subtitleSignIn":"Entre para continuar","subtitleSignUp":"Criar uma conta","displayName":"Nome de exibição","age":"Idade","agePlaceholder":"Idade (deve ser {{minAge}}+ na sua região)","email":"E-mail","password":"Senha","signIn":"Entrar","signUp":"Cadastrar","alreadyHaveAccount":"Já tem uma conta? Entrar","dontHaveAccount":"Não tem uma conta? Cadastre-se","errorFillFields":"Preencha todos os campos","errorSignInFailed":"Falha ao entrar","errorSignUpFailed":"Falha no cadastro","errorGeneric":"Ocorreu um erro","ageRequirementTitle":"Requisito de idade","consentRequired":"Você deve aceitar os Termos de Serviço e a Política de Privacidade para continuar.","consentRequiredTitle":"Obrigatório","agreeTerms":"Concordo com os","agreePrivacy":"Concordo com a","termsOfService":"Termos de Serviço","privacyPolicy":"Política de Privacidade","or":"ou","ageRequirementEU":"Você deve ter pelo menos 16 anos para usar este aplicativo na sua região. Menores de 16 anos precisam de consentimento dos pais.","ageRequirementDefault":"Você deve ter pelo menos 13 anos para usar este aplicativo.","ageRequirement18":"Você deve ter pelo menos 18 anos para usar este aplicativo na sua região.","emailDisposable":"Use um e-mail permanente. E-mails temporários ou descartáveis não são permitidos.","verificationSentTitle":"Verifique seu e-mail","verificationSentMessage":"Enviamos um link de verificação para seu e-mail. Verifique sua caixa de entrada e clique no link para verificar sua conta."},"privacy": {
+    "title": "Política de Privacidade",
+    "lastUpdated": "Última atualização"
+  },
+  "terms": {
+    "title": "Termos de Serviço",
+    "lastUpdated": "Última atualização"
+  },
+  "contact": {
+    "privacyEmail": "privacy@bhatiabuzz.com",
+    "legalEmail": "legal@bhatiabuzz.com"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "common": {
+    "save": "सहेजें",
+    "cancel": "रद्द करें",
+    "delete": "हटाएं",
+    "edit": "संपादित करें",
+    "submit": "जमा करें",
+    "loading": "लोड हो रहा है...",
+    "error": "त्रुटि",
+    "success": "सफल"
+  },
+  "auth":{"subtitleSignIn":"जारी रखने के लिए साइन इन करें","subtitleSignUp":"खाता बनाएं","displayName":"प्रदर्शन नाम","age":"उम्र","agePlaceholder":"उम्र (आपके क्षेत्र में {{minAge}}+ होनी चाहिए)","email":"ईमेल","password":"पासवर्ड","signIn":"साइन इन","signUp":"साइन अप","alreadyHaveAccount":"पहले से खाता है? साइन इन","dontHaveAccount":"खाता नहीं है? साइन अप","errorFillFields":"कृपया सभी फ़ील्ड भरें","errorSignInFailed":"साइन इन विफल","errorSignUpFailed":"साइन अप विफल","errorGeneric":"एक त्रुटि हुई","ageRequirementTitle":"उम्र की आवश्यकता","consentRequired":"जारी रखने के लिए आपको सेवा की शर्तें और गोपनीयता नीति स्वीकार करनी होगी।","consentRequiredTitle":"आवश्यक","agreeTerms":"मैं स्वीकार करता/करती हूं","agreePrivacy":"मैं स्वीकार करता/करती हूं","termsOfService":"सेवा की शर्तें","privacyPolicy":"गोपनीयता नीति","or":"या","ageRequirementEU":"इस ऐप का उपयोग करने के लिए आपकी उम्र कम से कम 16 वर्ष होनी चाहिए। 16 से कम उम्र के उपयोगकर्ताओं को माता-पिता की सहमति चाहिए।","ageRequirementDefault":"इस ऐप का उपयोग करने के लिए आपकी उम्र कम से कम 13 वर्ष होनी चाहिए।","ageRequirement18":"इस ऐप का उपयोग करने के लिए आपकी उम्र कम से कम 18 वर्ष होनी चाहिए।"},"privacy": {
+    "title": "गोपनीयता नीति",
+    "lastUpdated": "अंतिम अपडेट"
+  },
+  "terms": {
+    "title": "सेवा की शर्तें",
+    "lastUpdated": "अंतिम अपडेट"
+  },
+  "contact": {
+    "privacyEmail": "privacy@bhatiabuzz.com",
+    "legalEmail": "legal@bhatiabuzz.com"
+  }
+}
