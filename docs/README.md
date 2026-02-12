@@ -13,6 +13,7 @@ This folder contains all project documentation: setup guides, API key instructio
 | [Instagram](INSTAGRAM_SETUP.md) | Optional: Instagram access token for feed integration |
 | [Phone Auth](PHONE_AUTH_SETUP.md) | How to add phone sign-in (not yet implemented) |
 | [Docker & Env](DOCKER_AND_ENV.md) | Docker setup and environment variables (no `.env` in image) |
+| [Expo Build & Docker CI](EXPO_BUILD_AND_DOCKER_CI.md) | GitHub Actions: Docker build, EAS Build (IPA + AAB on push to main) |
 | [Security & Keys](SECURITY_AND_KEYS.md) | Pre-push checklist and key handling |
 | [Test Results](TEST_RESULTS.md) | E2E test status and breakdown (69 tests) |
 | [Test Implementation](TEST_IMPLEMENTATION_SUMMARY.md) | How tests are structured and run |
@@ -29,6 +30,7 @@ This folder contains all project documentation: setup guides, API key instructio
 | [DESIGN_SYSTEM_IMPLEMENTATION](DESIGN_SYSTEM_IMPLEMENTATION.md) | UI and design system |
 | [design-system](design-system.md) | Design system reference |
 | [DOCKER_AND_ENV](DOCKER_AND_ENV.md) | Docker and environment setup |
+| [EXPO_BUILD_AND_DOCKER_CI](EXPO_BUILD_AND_DOCKER_CI.md) | Expo Build (IPA/AAB) and Docker on GitHub Actions |
 | [FIRESTORE_INDEXES](FIRESTORE_INDEXES.md) | Firestore composite indexes |
 | [GLOBAL_COMPLIANCE](GLOBAL_COMPLIANCE.md) | Global compliance overview |
 | [GLOBAL_COMPLIANCE_ASSESSMENT](GLOBAL_COMPLIANCE_ASSESSMENT.md) | Compliance assessment |
