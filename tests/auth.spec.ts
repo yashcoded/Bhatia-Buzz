@@ -10,7 +10,7 @@ test.describe('Authentication', () => {
     // Wait for page to be ready with longer timeout
     await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 60000 });
     // Give React Native Web time to render
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(600);
   });
 
   test('should display auth screen on initial load', async ({ page }) => {
@@ -34,7 +34,7 @@ test.describe('Authentication', () => {
       const signUpLink = page.locator('text=/Don\'t have an account|Sign Up/i').first();
       if (await signUpLink.isVisible({ timeout: 3000 }).catch(() => false)) {
         await signUpLink.click();
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(300);
       }
       await expect(emailInput).toBeVisible();
     }
@@ -52,7 +52,7 @@ test.describe('Authentication', () => {
       await signInButton.click();
       
       // Wait a bit to see if error appears
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(600);
       
       // Check for any error indicators (this is a basic check)
       // The actual implementation may vary
@@ -75,7 +75,7 @@ test.describe('Authentication', () => {
         await signInButton.click();
         
         // Wait for potential error (Firebase auth takes time)
-        await page.waitForTimeout(3000);
+        await page.waitForTimeout(1500);
       }
     }
   });
@@ -101,7 +101,7 @@ test.describe('Authentication', () => {
       const signUpLink = page.locator('text=/Don\'t have an account|Sign Up/i').first();
       if (await signUpLink.isVisible({ timeout: 3000 }).catch(() => false)) {
         await signUpLink.click();
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(300);
       }
       await expect(emailInput).toBeVisible();
       const passwordInput = page.locator('input[placeholder*="Password" i], input[type="password"]').first();
@@ -114,7 +114,7 @@ test.describe('Authentication', () => {
 
   test('should show Google sign in button', async ({ page }) => {
     await page.locator('text=/Bhatia/i').first().waitFor({ state: 'visible', timeout: 15000 });
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(600);
     
     // Check for Google sign in button (case insensitive)
     // Try multiple selectors as the button text might vary

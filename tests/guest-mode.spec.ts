@@ -8,13 +8,13 @@ test.describe('Guest Mode', () => {
     navigationHelper = new NavigationHelper(page);
     await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 60000 });
     await waitForAppReady(page, 20000);
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(600);
   });
 
   test('should allow viewing feed without authentication', async ({ page }) => {
     // Wait for app content (avoid networkidle - Expo/Firebase keep connections open)
     await page.locator('text=/Bhatia|Feed/i').first().waitFor({ state: 'visible', timeout: 15000 });
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(600);
     
     // Guest mode means app should load without requiring login
     // Check for any app content - could be auth screen or main app
@@ -36,7 +36,7 @@ test.describe('Guest Mode', () => {
   test('should show login prompt when creating post without authentication', async ({ page }) => {
     // Navigate to feed if possible
     await page.locator('text=/Feed/i').first().click({ timeout: 5000 }).catch(() => {});
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(1000);
 
     // Try to find create post button or input
     const createPostButton = page.locator('text=/What\'s on your mind/i').or(
@@ -50,7 +50,7 @@ test.describe('Guest Mode', () => {
     
     if (buttonExists) {
       await createPostButton.click();
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(600);
       
       // Should see login prompt or auth modal
       const loginPrompt = await page.locator('text=/Login Required/i').isVisible({ timeout: 3000 }).catch(() => false) ||
@@ -64,7 +64,7 @@ test.describe('Guest Mode', () => {
 
   test('should allow viewing requests tab (moved to Settings)', async ({ page }) => {
     await page.locator('text=/Bhatia|Feed|Profile/i').first().waitFor({ state: 'visible', timeout: 15000 });
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(600);
     
     // This test verifies Requests is in Settings, not bottom tabs
     // Navigate to Profile if possible
@@ -78,7 +78,7 @@ test.describe('Guest Mode', () => {
 
   test('should show Panja Khada tab in navigation', async ({ page }) => {
     await page.locator('text=/Bhatia|Feed|Panja Khada/i').first().waitFor({ state: 'visible', timeout: 15000 });
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(600);
     
     // Check for Panja Khada tab or any navigation
     const panjaKhadaTab = page.locator('text=/Panja Khada/i');
@@ -106,7 +106,7 @@ test.describe('Guest Mode', () => {
     const requestsTab = page.locator('text=/Requests/i').filter({ hasText: /Requests/ });
     
     // Wait for navigation to load
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(1000);
     
     // Check which tabs are visible
     const feedVisible = await feedTab.isVisible({ timeout: 3000 }).catch(() => false);
@@ -142,7 +142,7 @@ test.describe('Guest Mode', () => {
     
     if (profileExists) {
       await profileTab.first().click();
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(1000);
       
       // Find Settings button
       const settingsButton = page.locator('text=/Settings/i').first();
@@ -150,7 +150,7 @@ test.describe('Guest Mode', () => {
       
       if (settingsExists) {
         await settingsButton.click();
-        await page.waitForTimeout(2000);
+        await page.waitForTimeout(1000);
         
         // Find and click Requests button in Settings
         const requestsButton = page.locator('button:has-text("Requests")').or(
@@ -161,7 +161,7 @@ test.describe('Guest Mode', () => {
         
         if (requestsButtonExists) {
           await requestsButton.click();
-          await page.waitForTimeout(3000);
+          await page.waitForTimeout(1500);
           
           // Should be on Requests screen now
           const requestsScreen = await page.locator('text=/Requests/i').isVisible({ timeout: 5000 }).catch(() => false) ||

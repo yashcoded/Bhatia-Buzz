@@ -12,7 +12,7 @@ test.describe('Matrimonial Feature', () => {
     navigationHelper = new NavigationHelper(page);
     await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 60000 });
     await waitForAppReady(page, 20000);
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(600);
     // Note: Uncomment when test user is available
     // await authHelper.signIn(testUsers.regular.email, testUsers.regular.password);
     // await navigationHelper.goToMatrimonial();
@@ -28,7 +28,7 @@ test.describe('Matrimonial Feature', () => {
       return;
     }
     await matchTab.click();
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(1000);
     const gateOrApp = await page.locator('text=Sign in to access Matrimonial').isVisible({ timeout: 8000 }).catch(() => false)
       || await page.locator('text=/Bhatia|Matrimonial|Match/i').first().isVisible({ timeout: 3000 }).catch(() => false);
     expect(gateOrApp).toBeTruthy();
@@ -42,7 +42,7 @@ test.describe('Matrimonial Feature', () => {
       return;
     }
     await matchTab.click();
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(1000);
     const gateVisible = await page.locator('text=Sign in to access Matrimonial').isVisible({ timeout: 8000 }).catch(() => false);
     const signInVisible = await page.locator('text=Sign in').first().isVisible({ timeout: 5000 }).catch(() => false);
     expect(gateVisible || signInVisible).toBeTruthy();

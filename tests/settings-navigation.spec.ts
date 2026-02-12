@@ -8,7 +8,7 @@ test.describe('Settings Navigation', () => {
     navigationHelper = new NavigationHelper(page);
     await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 60000 });
     await waitForAppReady(page, 20000);
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(600);
   });
 
   test('should navigate to Settings from Profile', async ({ page }) => {
@@ -18,7 +18,7 @@ test.describe('Settings Navigation', () => {
     
     if (profileExists) {
       await profileTab.click();
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(1000);
       
       // Find Settings button
       const settingsButton = page.locator('text=/Settings/i').first();
@@ -26,7 +26,7 @@ test.describe('Settings Navigation', () => {
       
       if (settingsExists) {
         await settingsButton.click();
-        await page.waitForTimeout(2000);
+        await page.waitForTimeout(1000);
         
         // Should see Settings screen
         const settingsScreen = await page.locator('text=/Settings/i').isVisible({ timeout: 3000 }).catch(() => false) ||
@@ -49,7 +49,7 @@ test.describe('Settings Navigation', () => {
     
     if (profileExists) {
       await profileTab.click();
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(1000);
       
       // Navigate to Settings
       const settingsButton = page.locator('text=/Settings/i').first();
@@ -57,7 +57,7 @@ test.describe('Settings Navigation', () => {
       
       if (settingsExists) {
         await settingsButton.click();
-        await page.waitForTimeout(2000);
+        await page.waitForTimeout(1000);
         
         // Look for Requests button/section in Settings
         const requestsButton = page.locator('button:has-text("Requests")').or(
@@ -88,14 +88,14 @@ test.describe('Settings Navigation', () => {
     
     if (profileExists) {
       await profileTab.click();
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(1000);
       
       const settingsButton = page.locator('text=/Settings/i').first();
       const settingsExists = await settingsButton.isVisible({ timeout: 5000 }).catch(() => false);
       
       if (settingsExists) {
         await settingsButton.click();
-        await page.waitForTimeout(2000);
+        await page.waitForTimeout(1000);
         
         const requestsButton = page.locator('button:has-text("Requests")').or(
           page.locator('text=/Requests/i').filter({ hasNotText: /Settings/ })
@@ -105,7 +105,7 @@ test.describe('Settings Navigation', () => {
         
         if (requestsButtonExists) {
           await requestsButton.click();
-          await page.waitForTimeout(3000);
+          await page.waitForTimeout(1500);
           
           // Should be on Requests screen
           const requestsScreen = await page.locator('text=/Requests/i').isVisible({ timeout: 5000 }).catch(() => false) ||
@@ -125,14 +125,14 @@ test.describe('Settings Navigation', () => {
     
     if (profileExists) {
       await profileTab.click();
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(1000);
       
       const settingsButton = page.locator('text=/Settings/i').first();
       const settingsExists = await settingsButton.isVisible({ timeout: 5000 }).catch(() => false);
       
       if (settingsExists) {
         await settingsButton.click();
-        await page.waitForTimeout(2000);
+        await page.waitForTimeout(1000);
         
         // Check for common Settings sections
         const editProfile = await page.locator('text=/Edit Profile/i').isVisible({ timeout: 3000 }).catch(() => false);

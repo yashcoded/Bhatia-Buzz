@@ -42,7 +42,7 @@ test.describe('Requests Feature', () => {
     /*
     // Click on Condolence filter
     await page.click('text=/Condolence/i');
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(600);
     
     // Verify only condolence requests are shown
     const requests = page.locator('[data-testid="request-card"]');

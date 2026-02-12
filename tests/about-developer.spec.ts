@@ -13,7 +13,7 @@ test.describe('About & Developer', () => {
 
   test('navigate to About & Developer from Settings', async ({ page }) => {
     await navigationHelper.goToProfile();
-    await page.waitForTimeout(1500);
+    await page.waitForTimeout(800);
 
     const settingsButton = page.locator('text=/Settings/i').first();
     const settingsVisible = await settingsButton.isVisible({ timeout: 5000 }).catch(() => false);
@@ -23,7 +23,7 @@ test.describe('About & Developer', () => {
     }
 
     await settingsButton.click();
-    await page.waitForTimeout(1500);
+    await page.waitForTimeout(800);
 
     const aboutLink = page.locator('text=/About & Developer Docs/i').or(
       page.locator('text=/About & Developer/i')
@@ -32,14 +32,14 @@ test.describe('About & Developer', () => {
     expect(aboutVisible).toBeTruthy();
 
     await aboutLink.click();
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(1000);
 
     await expect(page.locator('text=About Bhatia Buzz')).toBeVisible({ timeout: 5000 });
   });
 
   test('About screen shows How it works and Documentation', async ({ page }) => {
     await navigationHelper.goToProfile();
-    await page.waitForTimeout(1500);
+    await page.waitForTimeout(800);
 
     const settingsButton = page.locator('text=/Settings/i').first();
     if (!(await settingsButton.isVisible({ timeout: 5000 }).catch(() => false))) {
@@ -48,7 +48,7 @@ test.describe('About & Developer', () => {
     }
 
     await settingsButton.click();
-    await page.waitForTimeout(1500);
+    await page.waitForTimeout(800);
 
     const aboutLink = page.locator('text=/About & Developer Docs/i').or(
       page.locator('text=/About & Developer/i')
@@ -59,7 +59,7 @@ test.describe('About & Developer', () => {
     }
 
     await aboutLink.click();
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(1000);
 
     await expect(page.locator('text=How it works')).toBeVisible({ timeout: 5000 });
     await expect(page.locator('text=Documentation')).toBeVisible({ timeout: 5000 });

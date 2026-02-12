@@ -13,9 +13,9 @@ export default defineConfig({
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only (Expo can be slow to render) */
-  retries: process.env.CI ? 3 : 0,
-  /* Opt out of parallel tests on CI for stability. */
-  workers: process.env.CI ? 1 : undefined,
+  retries: process.env.CI ? 2 : 0,
+  /* Parallel workers: 2 in CI for speed, default locally */
+  workers: process.env.CI ? 2 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
@@ -24,11 +24,9 @@ export default defineConfig({
     baseURL: 'http://localhost:8081',
     /* Stable viewport in CI */
     viewport: process.env.CI ? { width: 1280, height: 720 } : undefined,
-    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on-first-retry',
-    /* Screenshot on failure */
+    /* In CI skip trace to speed up retries; keep screenshot/video for debugging */
+    trace: process.env.CI ? 'off' : 'on-first-retry',
     screenshot: 'only-on-failure',
-    /* Video on failure */
     video: 'retain-on-failure',
     /* Increase timeout for navigation */
     navigationTimeout: process.env.CI ? 90_000 : 60_000,

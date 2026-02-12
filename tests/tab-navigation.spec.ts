@@ -7,7 +7,7 @@ test.describe('Tab Navigation', () => {
   test.beforeEach(async ({ page }) => {
     navigationHelper = new NavigationHelper(page);
     await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 60000 });
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(1000);
   });
 
   test('should display all bottom tabs: Feed, Panja Khada, Match, Profile', async ({ page }) => {
@@ -17,7 +17,7 @@ test.describe('Tab Navigation', () => {
     const matchTab = page.locator('text=/Match/i');
     const profileTab = page.locator('text=/Profile/i');
     
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(1000);
     
     // At least some tabs should be visible
     const feedVisible = await feedTab.isVisible({ timeout: 3000 }).catch(() => false);
@@ -37,7 +37,7 @@ test.describe('Tab Navigation', () => {
     
     if (feedExists) {
       await feedTab.click();
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(1000);
       
       // Should see Feed content
       const feedContent = await page.locator('text=/Feed/i').isVisible({ timeout: 3000 }).catch(() => false) ||
@@ -57,7 +57,7 @@ test.describe('Tab Navigation', () => {
     
     if (tabExists) {
       await panjaKhadaTab.click();
-      await page.waitForTimeout(3000);
+      await page.waitForTimeout(1500);
       
       // Should see Panja Khada screen
       // WebView might take time to load
@@ -77,7 +77,7 @@ test.describe('Tab Navigation', () => {
     
     if (tabExists) {
       await matchTab.click();
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(1000);
       
       // Should see Match/Matrimonial content
       const matchContent = await page.locator('text=/Match/i').or(
@@ -97,7 +97,7 @@ test.describe('Tab Navigation', () => {
     
     if (tabExists) {
       await profileTab.click();
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(1000);
       
       // Should see Profile content or login prompt
       const profileContent = await page.locator('text=/Profile/i').isVisible({ timeout: 3000 }).catch(() => false) ||
@@ -117,7 +117,7 @@ test.describe('Tab Navigation', () => {
       has: page.locator('..'), // In tab navigation
     });
     
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(1000);
     
     // Count Requests in bottom tab area (should be 0)
     const requestsInTabs = await requestsTab.count();
@@ -128,7 +128,7 @@ test.describe('Tab Navigation', () => {
   });
 
   test('should maintain tab order: Feed -> Panja Khada -> Match -> Profile', async ({ page }) => {
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(1000);
     
     // Check if tabs are visible
     const feedTab = page.locator('text=/Feed/i');
