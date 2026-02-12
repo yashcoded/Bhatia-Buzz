@@ -14,8 +14,8 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   /* Retry on CI only (Expo can be slow to render) */
   retries: process.env.CI ? 2 : 0,
-  /* Parallel workers: 2 in CI for speed, default locally */
-  workers: process.env.CI ? 2 : undefined,
+  /* 1 worker in CI for stability (shared Expo server); default locally */
+  workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
