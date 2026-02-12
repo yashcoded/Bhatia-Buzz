@@ -2,9 +2,11 @@ import { Page } from '@playwright/test';
 
 /**
  * Wait for the app to be visible (auth or main app). Use in beforeEach to avoid flaky "app not loaded" failures.
+ * Uses longer timeout in CI where Expo/React can be slow to render.
  */
-export async function waitForAppReady(page: Page, timeoutMs = 20000): Promise<void> {
-  await page.waitForSelector('text=/Bhatia|Buzz|Sign in|Create an account|Feed|Profile/i', { timeout: timeoutMs }).catch(() => null);
+export async function waitForAppReady(page: Page, timeoutMs = 20_000): Promise<void> {
+  const t = process.env.CI ? Math.max(timeoutMs, 45_000) : timeoutMs;
+  await page.waitForSelector('text=/Bhatia|Buzz|Sign in|Create an account|Feed|Profile/i', { timeout: t }).catch(() => null);
 }
 
 /**

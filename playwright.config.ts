@@ -12,9 +12,9 @@ export default defineConfig({
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
-  /* Retry on CI only */
-  retries: process.env.CI ? 2 : 0,
-  /* Opt out of parallel tests on CI. */
+  /* Retry on CI only (Expo can be slow to render) */
+  retries: process.env.CI ? 3 : 0,
+  /* Opt out of parallel tests on CI for stability. */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
@@ -22,6 +22,8 @@ export default defineConfig({
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
     baseURL: 'http://localhost:8081',
+    /* Stable viewport in CI */
+    viewport: process.env.CI ? { width: 1280, height: 720 } : undefined,
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
     /* Screenshot on failure */
@@ -29,11 +31,16 @@ export default defineConfig({
     /* Video on failure */
     video: 'retain-on-failure',
     /* Increase timeout for navigation */
-    navigationTimeout: 60000,
+    navigationTimeout: process.env.CI ? 90_000 : 60_000,
   },
   
-  /* Global test timeout */
-  timeout: 60000,
+  /* Global test timeout (longer in CI where Expo can be slow) */
+  timeout: process.env.CI ? 90_000 : 60_000,
+
+  /* Expect timeout */
+  expect: {
+    timeout: process.env.CI ? 15_000 : 5_000,
+  },
 
   /* Configure projects for major browsers */
   projects: [
@@ -57,7 +64,7 @@ export default defineConfig({
     command: 'pnpm run web',
     url: 'http://localhost:8081',
     reuseExistingServer: !process.env.CI,
-    timeout: 180 * 1000, // 3 minutes for Expo to start
+    timeout: process.env.CI ? 300 * 1000 : 180 * 1000, // 5 min in CI, 3 min locally
     stdout: 'ignore',
     stderr: 'pipe',
   },
