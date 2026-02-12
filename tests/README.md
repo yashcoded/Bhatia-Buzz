@@ -9,8 +9,10 @@ tests/
 ├── helpers/           # Test helper functions
 │   ├── auth.ts        # Authentication helpers
 │   └── navigation.ts  # Navigation helpers
-├── fixtures/          # Test data fixtures
-│   └── test-data.ts  # Test data constants
+├── fixtures/          # Test data and API stubs
+│   ├── test-data.ts   # Test data constants
+│   ├── api-stubs.ts   # Stub response bodies (Firebase, HF, Instagram)
+│   └── stubbed-page.ts # Playwright fixture that stubs live APIs
 ├── auth.spec.ts      # Authentication tests
 ├── navigation.spec.ts # Navigation tests
 ├── feed.spec.ts      # Feed feature tests
@@ -19,6 +21,18 @@ tests/
 ├── profile.spec.ts   # Profile feature tests
 └── example.spec.ts   # Example test template
 ```
+
+## API stubbing (no live calls)
+
+E2E tests use **Playwright route interception** so they do not hit live APIs (no cost, no rate limits):
+
+- **Firebase Auth** – stubbed so the app shows the login screen (no real auth).
+- **Firestore** – stubbed with empty results.
+- **Firebase Storage** – stubbed with empty list.
+- **Hugging Face** (face detection) – stubbed with a single face result.
+- **Instagram Graph API** – stubbed with empty feed.
+
+All specs import `test` and `expect` from `./fixtures/stubbed-page`, which applies these stubs to every test. To hit real APIs, use the base `@playwright/test` in a separate spec.
 
 ## Running Tests
 

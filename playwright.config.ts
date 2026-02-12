@@ -17,7 +17,7 @@ export default defineConfig({
   /* 1 worker in CI for stability (shared Expo server); default locally */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter: list in CI for logs; html for report artifact */
-  reporter: process.env.CI ? ['list', 'html'] : 'html',
+  reporter: process.env.CI ? [['list'], ['html']] : 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */

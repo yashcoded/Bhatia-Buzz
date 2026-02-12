@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures/stubbed-page';
 import { NavigationHelper, waitForAppReady } from './helpers/navigation';
 
 test.describe('Settings Navigation', () => {

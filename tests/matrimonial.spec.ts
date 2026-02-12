@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures/stubbed-page';
 import { AuthHelper } from './helpers/auth';
 import { NavigationHelper, waitForAppReady } from './helpers/navigation';
 import { testUsers, testMatrimonialProfile } from './fixtures/test-data';
