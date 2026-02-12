@@ -15,6 +15,7 @@ This folder contains all project documentation: setup guides, API key instructio
 | [Docker & Env](DOCKER_AND_ENV.md) | Docker setup and environment variables (no `.env` in image) |
 | [Expo Build & Docker CI](EXPO_BUILD_AND_DOCKER_CI.md) | GitHub Actions: Docker build, EAS Build (IPA + AAB on push to main) |
 | [Security & Keys](SECURITY_AND_KEYS.md) | Pre-push checklist and key handling |
+| [Privacy Policy](PRIVACY_POLICY.md) | Full privacy policy (in-app + web/store URL) |
 | [Test Results](TEST_RESULTS.md) | E2E test status and breakdown (69 tests) |
 | [Test Implementation](TEST_IMPLEMENTATION_SUMMARY.md) | How tests are structured and run |
 
@@ -41,6 +42,7 @@ This folder contains all project documentation: setup guides, API key instructio
 | [INSTAGRAM_SETUP](INSTAGRAM_SETUP.md) | Instagram API setup |
 | [PHONE_AUTH_SETUP](PHONE_AUTH_SETUP.md) | Phone sign-in setup |
 | [PNPM_MIGRATION](PNPM_MIGRATION.md) | PNPM migration notes |
+| [PRIVACY_POLICY](PRIVACY_POLICY.md) | Full privacy policy (web version for store URL) |
 | [PROJECT_SUMMARY](PROJECT_SUMMARY.md) | High-level project overview |
 | [SECURITY_AND_KEYS](SECURITY_AND_KEYS.md) | Security and key handling |
 | [SETUP](SETUP.md) | Full project setup |

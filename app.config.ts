@@ -24,17 +24,22 @@ export default ({ config }: ConfigContext): ExpoConfig => {
   };
 
   return {
-    name: config.name || 'Bhatia-Buzz',
+    name: config.name || 'Bhatia Buzz',
     slug: config.slug || 'Bhatia-Buzz',
     ...config,
     extra: {
       ...(config.extra ?? {}),
       ...extraFromEnv,
     },
+    android: {
+      ...config.android,
+      package: 'com.bhatiabuzz.app',
+    },
     // iOS permissions for image picker
     ios: config.ios
       ? {
           ...config.ios,
+          bundleIdentifier: 'com.bhatiabuzz.app',
           infoPlist: {
             ...config.ios.infoPlist,
             NSPhotoLibraryUsageDescription:
@@ -46,6 +51,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
           },
         }
       : {
+          bundleIdentifier: 'com.bhatiabuzz.app',
           infoPlist: {
             NSPhotoLibraryUsageDescription:
               'This app needs access to your photo library to upload images for posts.',

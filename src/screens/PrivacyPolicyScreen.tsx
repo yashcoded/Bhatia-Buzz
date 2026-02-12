@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, I18nManager } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Linking, Pressable } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Platform } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -105,6 +105,11 @@ const PrivacyPolicyScreen = () => {
           <Text style={[styles.sectionTitle, { textAlign }]}>{t('privacy.section11.title')}</Text>
           <Text style={[styles.sectionText, { textAlign }]}>{t('privacy.section11.content')}</Text>
           <Text style={styles.contactText}>Email: {contactInfo.privacyEmail}</Text>
+          {contactInfo.privacyPolicyUrl ? (
+            <Pressable onPress={() => Linking.openURL(contactInfo.privacyPolicyUrl)} style={styles.linkButton}>
+              <Text style={styles.linkButtonText}>View privacy policy online</Text>
+            </Pressable>
+          ) : null}
           <Text style={[styles.contactText, { textAlign }]}>{t('privacy.section11.inApp')}</Text>
         </View>
       </ScrollView>
@@ -163,6 +168,15 @@ const styles = StyleSheet.create({
     color: Colors.tertiary,
     fontFamily: getFontFamily(500),
     marginTop: Spacing.xs,
+  },
+  linkButton: {
+    marginTop: Spacing.small,
+  },
+  linkButtonText: {
+    ...Typography.body3,
+    color: Colors.tertiary,
+    fontFamily: getFontFamily(600),
+    textDecorationLine: 'underline',
   },
   boldText: {
     fontFamily: getFontFamily(600),

@@ -71,6 +71,10 @@ export const contactInfo = {
   privacyEmail: process.env.EXPO_PUBLIC_PRIVACY_EMAIL || 'privacy@bhatiabuzz.com',
   legalEmail: process.env.EXPO_PUBLIC_LEGAL_EMAIL || 'legal@bhatiabuzz.com',
   supportEmail: process.env.EXPO_PUBLIC_SUPPORT_EMAIL || 'support@bhatiabuzz.com',
+  /** Privacy policy URL (for in-app "View online" and app store listings). Set in .env as EXPO_PUBLIC_PRIVACY_POLICY_URL */
+  privacyPolicyUrl: process.env.EXPO_PUBLIC_PRIVACY_POLICY_URL || '',
+  /** Terms of service URL. Set in .env as EXPO_PUBLIC_TERMS_OF_SERVICE_URL */
+  termsOfServiceUrl: process.env.EXPO_PUBLIC_TERMS_OF_SERVICE_URL || '',
 };
 
 // Hugging Face API Configuration

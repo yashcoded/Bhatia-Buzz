@@ -32,6 +32,26 @@ Workflow file: `.github/workflows/pipeline.yml`. If any step fails, the followin
 4. **iOS:** Ensure your Expo account has Apple credentials configured (EAS can manage them, or use your own).  
    **Android:** EAS can generate a keystore, or use your own in the project.
 
+### Apple (App Store) and Google Play setup (before store submission)
+
+You’ll need to set these up before you can submit the built IPA/AAB to the stores:
+
+**Apple (for IPA / App Store)**  
+- **Apple Developer account:** [developer.apple.com](https://developer.apple.com) (paid).  
+- **App name / App ID (display):** Use **Bhatia Buzz** or **BhatiaBuzz** (alphanumeric and spaces only)—do *not* put `com.bhatiabuzz.app` in the app name field.  
+- **Bundle ID:** Use **com.bhatiabuzz.app** only in [Apple Developer → Identifiers](https://developer.apple.com/account/resources/identifiers/list) for the bundle identifier (signing and submission).  
+- **EAS and Apple:** Run `eas credentials` or let EAS Build create/manage the distribution certificate and provisioning profile when you build; you can also upload your own. See [Expo: iOS credentials](https://docs.expo.dev/app-signing/managed-credentials/#ios).
+
+**Google Play (for AAB)**  
+- **Google Play Developer account:** [play.google.com/console](https://play.google.com/console) (one-time fee).  
+- **App name (display):** Use **Bhatia Buzz** or **BhatiaBuzz** (alphanumeric and spaces only)—do *not* use `com.bhatiabuzz.app` for the app name.  
+- **Application ID / package name:** Use **com.bhatiabuzz.app** when creating the app in the Play Console (must match `app.config.ts`).  
+- **Signing:** EAS can generate and store a keystore for you, or you can use your own. See [Expo: Android credentials](https://docs.expo.dev/app-signing/managed-credentials/#android).
+
+Until the bundle ID and Play app exist, EAS Build can still produce the IPA and AAB; you’ll need the Apple/Play setup when you’re ready to submit to the stores.
+
+**Privacy policy URL:** App Store and Google Play require a **privacy policy URL** when you submit the app. A full policy document is in [docs/PRIVACY_POLICY.md](PRIVACY_POLICY.md). You can use the GitHub URL (e.g. `https://github.com/your-org/Bhatia-Buzz/blob/main/docs/PRIVACY_POLICY.md` — ensure the repo is public for store review) or host the same content on your own website. Set `EXPO_PUBLIC_PRIVACY_POLICY_URL` in your `.env` (and in GitHub Secrets if you use CI). The same URL is used for the in-app “View privacy policy online” link. See `.env.example` for `EXPO_PUBLIC_TERMS_OF_SERVICE_URL` if you also host terms online.
+
 ### Build profiles (`eas.json`)
 
 - **production:** Used by CI. Android → AAB, iOS → IPA, with `autoIncrement` for version bumps.

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Linking, Pressable } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Platform } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -102,6 +102,11 @@ const TermsOfServiceScreen = () => {
           <Text style={[styles.sectionTitle, { textAlign }]}>{t('terms.section13.title')}</Text>
           <Text style={[styles.sectionText, { textAlign }]}>{t('terms.section13.content')}</Text>
           <Text style={styles.contactText}>Email: {contactInfo.legalEmail}</Text>
+          {contactInfo.termsOfServiceUrl ? (
+            <Pressable onPress={() => Linking.openURL(contactInfo.termsOfServiceUrl)} style={styles.linkButton}>
+              <Text style={styles.linkButtonText}>View terms of service online</Text>
+            </Pressable>
+          ) : null}
           <Text style={[styles.contactText, { textAlign }]}>{t('terms.section13.inApp')}</Text>
         </View>
       </ScrollView>
@@ -160,6 +165,15 @@ const styles = StyleSheet.create({
     color: Colors.tertiary,
     fontFamily: getFontFamily(500),
     marginTop: Spacing.xs,
+  },
+  linkButton: {
+    marginTop: Spacing.small,
+  },
+  linkButtonText: {
+    ...Typography.body3,
+    color: Colors.tertiary,
+    fontFamily: getFontFamily(600),
+    textDecorationLine: 'underline',
   },
 });
 
