@@ -32,6 +32,13 @@ Workflow file: `.github/workflows/pipeline.yml`. If any step fails, the followin
 4. **iOS:** Ensure your Expo account has Apple credentials configured (EAS can manage them, or use your own).  
    **Android:** EAS can generate a keystore, or use your own in the project.
 
+5. **iOS credentials for CI (fix “Credentials are not set up”)**  
+   The pipeline runs `eas build --non-interactive`. iOS builds will fail with *“Credentials are not set up. Run this command again in interactive mode”* until credentials exist on EAS. **On your machine** (with `EXPO_TOKEN` or after `eas login`), run once:
+   ```bash
+   eas credentials:configure-build --platform ios --profile production
+   ```
+   Follow the prompts to let EAS create (or upload) a **Distribution Certificate** and **Provisioning Profile**. After that, CI can use those stored credentials and `--non-interactive` will succeed. See [Expo: iOS credentials](https://docs.expo.dev/app-signing/managed-credentials/#ios).
+
 ### Apple (App Store) and Google Play setup (before store submission)
 
 You’ll need to set these up before you can submit the built IPA/AAB to the stores:

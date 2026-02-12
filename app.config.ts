@@ -42,6 +42,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
           bundleIdentifier: 'com.bhatiabuzz.app',
           infoPlist: {
             ...config.ios.infoPlist,
+            ITSAppUsesNonExemptEncryption: false,
             NSPhotoLibraryUsageDescription:
               'This app needs access to your photo library to upload images for posts.',
             NSPhotoLibraryAddUsageDescription:
@@ -53,6 +54,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       : {
           bundleIdentifier: 'com.bhatiabuzz.app',
           infoPlist: {
+            ITSAppUsesNonExemptEncryption: false,
             NSPhotoLibraryUsageDescription:
               'This app needs access to your photo library to upload images for posts.',
             NSPhotoLibraryAddUsageDescription:
