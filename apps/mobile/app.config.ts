@@ -23,12 +23,14 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     },
   };
 
+  const easProjectId = process.env.EAS_PROJECT_ID ?? config.extra?.eas?.projectId;
   return {
     name: config.name || 'Bhatia Buzz',
     slug: config.slug || 'Bhatia-Buzz',
     ...config,
     extra: {
       ...(config.extra ?? {}),
+      ...(easProjectId ? { eas: { projectId: easProjectId } } : {}),
       ...extraFromEnv,
     },
     android: {
