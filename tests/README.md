@@ -34,6 +34,8 @@ E2E tests use **Playwright route interception** so they do not hit live APIs (no
 
 All specs import `test` and `expect` from `./fixtures/stubbed-page`, which applies these stubs to every test. To hit real APIs, use the base `@playwright/test` in a separate spec.
 
+**Moxios:** The project includes `moxios` for stubbing axios in unit tests (e.g. with Jest). The same response shapes in `fixtures/api-stubs.ts` can be used with moxios to stub axios requests so unit tests pass without hitting live APIs.
+
 ## Running Tests
 
 ### Prerequisites

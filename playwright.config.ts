@@ -2,9 +2,9 @@ import { defineConfig, devices } from '@playwright/test';
 
 /**
  * Playwright configuration for E2E testing
- * 
+ *
  * Note: These tests run against the web version of the Expo app
- * Make sure to run `npm run web` before running tests
+ * Make sure to run `pnpm run web` before running tests
  */
 export default defineConfig({
   testDir: './tests',
@@ -31,7 +31,7 @@ export default defineConfig({
     /* Increase timeout for navigation */
     navigationTimeout: process.env.CI ? 90_000 : 60_000,
   },
-  
+
   /* Global test timeout (longer in CI where Expo can be slow) */
   timeout: process.env.CI ? 90_000 : 60_000,
 
@@ -67,4 +67,3 @@ export default defineConfig({
     stderr: 'pipe',
   },
 });
-
