@@ -33,6 +33,7 @@ import {
   BorderRadius,
   TouchTarget,
 } from '../constants/theme';
+import { useTheme } from '../utils/theme';
 import { getFontFamily } from '../utils/fonts';
 import { uploadMatrimonialPhoto } from '../services/firebase/storage';
 import { formatDateShort } from '../utils/locale';
@@ -47,6 +48,7 @@ import {
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const CreateMatrimonialProfileScreen = () => {
+  const { colors } = useTheme();
   const dispatch = useAppDispatch();
   const navigation = useNavigation<NavigationProp>();
   const { user } = useAppSelector((state) => state.auth);
@@ -454,14 +456,16 @@ const CreateMatrimonialProfileScreen = () => {
     } catch (error: any) {
       console.error('Error creating profile:', error);
       setIsUploadingPhotos(false);
-      Alert.alert('Error', error.message || 'Failed to create profile. Please try again.');
+      const message = error?.message || 'Failed to create profile. Please try again.';
+      const isDuplicate = /already exists/i.test(message);
+      Alert.alert(isDuplicate ? 'Duplicate profile' : 'Error', message);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.primaryBackground }]} edges={['bottom', 'left', 'right']}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
@@ -477,9 +481,9 @@ const CreateMatrimonialProfileScreen = () => {
           <Text style={styles.title}>Create Matrimonial Profile</Text>
           <Text style={styles.subtitle}>Please fill in all required fields</Text>
 
-          {/* Personal Information */}
+          {/* Basic Details (matrimonial-website style) */}
           <Card style={styles.section} padding={Spacing.medium}>
-            <Text style={styles.sectionTitle}>Personal Information</Text>
+            <Text style={styles.sectionTitle}>Basic Details</Text>
 
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Name *</Text>
@@ -739,6 +743,7 @@ const CreateMatrimonialProfileScreen = () => {
               />
             </View>
 
+            <Text style={[styles.sectionTitle, { marginTop: 16, marginBottom: 8 }]}>Religion & Community</Text>
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Caste</Text>
               <TextInput
@@ -954,9 +959,9 @@ const CreateMatrimonialProfileScreen = () => {
             
           </Card>
 
-          {/* Family Information */}
+          {/* Family Details (matrimonial-website style) */}
           <Card style={styles.section} padding={Spacing.medium}>
-            <Text style={styles.sectionTitle}>Family Information</Text>
+            <Text style={styles.sectionTitle}>Family Details</Text>
 
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Father's Name *</Text>
@@ -1031,9 +1036,9 @@ const CreateMatrimonialProfileScreen = () => {
             </View>
           </Card>
 
-          {/* Preference */}
+          {/* Partner Preferences (matrimonial-website style) */}
           <Card style={styles.section} padding={Spacing.medium}>
-            <Text style={styles.sectionTitle}>Preference</Text>
+            <Text style={styles.sectionTitle}>Partner Preferences</Text>
             <View style={styles.inputGroup}>
               <TextInput
                 style={[styles.input, styles.textArea]}

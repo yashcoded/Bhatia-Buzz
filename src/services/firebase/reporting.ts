@@ -1,4 +1,4 @@
-import { collection, addDoc, Timestamp, query, where, getDocs, orderBy } from 'firebase/firestore';
+import { collection, addDoc, Timestamp, query, where, getDocs, orderBy, limit, updateDoc, doc } from 'firebase/firestore';
 import { firestore } from './config';
 import { COLLECTIONS } from '../../constants/config';
 
@@ -44,7 +44,38 @@ export const createReport = async (
     createdAt: Timestamp.now(),
   });
 
+  // Waze-style: 5 reports against a user → suspend
+  if (reportData.reportedUserId) {
+    try {
+      const count = await getReportCountForUser(reportData.reportedUserId);
+      if (count >= 5) {
+        await setUserSuspended(reportData.reportedUserId);
+      }
+    } catch (err) {
+      if (typeof __DEV__ !== 'undefined' && __DEV__) console.warn('Report count/suspend check failed:', err);
+    }
+  }
+
   return docRef.id;
+};
+
+const REPORTS_COLLECTION = COLLECTIONS.REPORTS || 'reports';
+
+/** Number of reports filed against this user (any status). */
+export const getReportCountForUser = async (reportedUserId: string): Promise<number> => {
+  const q = query(
+    collection(firestore, REPORTS_COLLECTION),
+    where('reportedUserId', '==', reportedUserId),
+    limit(100)
+  );
+  const snapshot = await getDocs(q);
+  return snapshot.size;
+};
+
+/** Mark user as suspended in Firestore (e.g. after 5 reports). They will be signed out on next auth check. */
+export const setUserSuspended = async (userId: string): Promise<void> => {
+  const userRef = doc(firestore, COLLECTIONS.USERS, userId);
+  await updateDoc(userRef, { suspended: true });
 };
 
 /**

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -23,6 +23,7 @@ import {
   BorderRadius,
   TouchTarget,
 } from '../constants/theme';
+import { useTheme } from '../utils/theme';
 import { useTranslation } from 'react-i18next';
 import { getFontFamily } from '../utils/fonts';
 import {
@@ -49,6 +50,8 @@ const AuthScreen = () => {
   const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
   const [acceptedAnalytics, setAcceptedAnalytics] = useState(false); // Optional
   const [acceptedMarketing, setAcceptedMarketing] = useState(false); // Optional
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
 
   // When user switches to Sign Up, resolve region (GPS if permitted, else device locale) for age rule
   useEffect(() => {
@@ -150,7 +153,7 @@ const AuthScreen = () => {
                   <TextInput
                     style={styles.input}
                     placeholder={t('auth.displayName')}
-                    placeholderTextColor={Colors.secondaryText}
+                    placeholderTextColor={colors.secondaryText}
                     value={displayName}
                     onChangeText={setDisplayName}
                     autoCapitalize="words"
@@ -158,7 +161,7 @@ const AuthScreen = () => {
                   <TextInput
                     style={styles.input}
                     placeholder={t('auth.agePlaceholder', { minAge: ageRequirement.minAge })}
-                    placeholderTextColor={Colors.secondaryText}
+                    placeholderTextColor={colors.secondaryText}
                     value={age}
                     onChangeText={setAge}
                     keyboardType="number-pad"
@@ -169,7 +172,7 @@ const AuthScreen = () => {
               <TextInput
                 style={styles.input}
                 placeholder={t('auth.email')}
-                placeholderTextColor={Colors.secondaryText}
+                placeholderTextColor={colors.secondaryText}
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
@@ -180,7 +183,7 @@ const AuthScreen = () => {
               <TextInput
                 style={styles.input}
                 placeholder={t('auth.password')}
-                placeholderTextColor={Colors.secondaryText}
+                placeholderTextColor={colors.secondaryText}
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry
@@ -272,118 +275,107 @@ const AuthScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.primaryBackground,
-  },
-  keyboardView: {
-    flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    justifyContent: 'center',
-  },
-  content: {
-    paddingHorizontal: Spacing.standard,
-    paddingVertical: Spacing.xxl,
-  },
-  title: {
-    ...Typography.headline2,
-    textAlign: 'center',
-    color: Colors.primaryText,
-    fontFamily: getFontFamily(600),
-    marginBottom: Spacing.xxs,
-  },
-  titleAccent: {
-    color: Colors.primary,
-  },
-  subtitle: {
-    ...Typography.body2,
-    textAlign: 'center',
-    color: Colors.secondaryText,
-    fontFamily: getFontFamily(400),
-    marginBottom: Spacing.xxl,
-  },
-  form: {
-    marginTop: Spacing.large,
-  },
-  input: {
-    ...Typography.body3,
-    height: TouchTarget.recommended,
-    borderWidth: 1.5,
-    borderColor: Colors.alternate + '33', // 0.2 opacity
-    borderRadius: BorderRadius.button,
-    paddingHorizontal: Spacing.medium,
-    marginBottom: Spacing.medium,
-    backgroundColor: Colors.secondaryBackground,
-    color: Colors.primaryText,
-    fontFamily: getFontFamily(400),
-  },
-  buttonContainer: {
-    marginBottom: Spacing.medium,
-  },
-  errorText: {
-    ...Typography.label4,
-    color: Colors.error,
-    textAlign: 'center',
-    marginBottom: Spacing.medium,
-    fontFamily: getFontFamily(500),
-  },
-  dividerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: Spacing.medium,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: Colors.alternate + '33', // 0.2 opacity
-  },
-  dividerText: {
-    ...Typography.label3,
-    color: Colors.secondaryText,
-    marginHorizontal: Spacing.small,
-    fontFamily: getFontFamily(500),
-  },
-  consentContainer: {
-    marginVertical: Spacing.medium,
-  },
-  checkboxRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: Spacing.small,
-  },
-  checkbox: {
-    width: 20,
-    height: 20,
-    borderWidth: 2,
-    borderColor: Colors.alternate + '66',
-    borderRadius: 4,
-    marginRight: Spacing.small,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  checkboxChecked: {
-    backgroundColor: Colors.tertiary,
-    borderColor: Colors.tertiary,
-  },
-  checkmark: {
-    color: Colors.primaryBackground,
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  consentText: {
-    ...Typography.body4,
-    color: Colors.secondaryText,
-    fontFamily: getFontFamily(400),
-    flex: 1,
-  },
-  linkText: {
-    color: Colors.tertiary,
-    fontFamily: getFontFamily(600),
-    textDecorationLine: 'underline',
-  },
-});
+function makeStyles(colors: import('../constants/theme').ThemeColors) {
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.primaryBackground,
+    },
+    keyboardView: { flex: 1 },
+    scrollContent: { flexGrow: 1, justifyContent: 'center' },
+    content: {
+      paddingHorizontal: Spacing.standard,
+      paddingVertical: Spacing.xxl,
+    },
+    title: {
+      ...Typography.headline2,
+      textAlign: 'center',
+      color: colors.primaryText,
+      fontFamily: getFontFamily(600),
+      marginBottom: Spacing.xxs,
+    },
+    titleAccent: { color: colors.primary },
+    subtitle: {
+      ...Typography.body2,
+      textAlign: 'center',
+      color: colors.secondaryText,
+      fontFamily: getFontFamily(400),
+      marginBottom: Spacing.xxl,
+    },
+    form: { marginTop: Spacing.large },
+    input: {
+      ...Typography.body3,
+      height: TouchTarget.recommended,
+      borderWidth: 1.5,
+      borderColor: colors.alternate + '33',
+      borderRadius: BorderRadius.button,
+      paddingHorizontal: Spacing.medium,
+      marginBottom: Spacing.medium,
+      backgroundColor: colors.secondaryBackground,
+      color: colors.primaryText,
+      fontFamily: getFontFamily(400),
+    },
+    buttonContainer: { marginBottom: Spacing.medium },
+    errorText: {
+      ...Typography.label4,
+      color: colors.error,
+      textAlign: 'center',
+      marginBottom: Spacing.medium,
+      fontFamily: getFontFamily(500),
+    },
+    dividerContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginVertical: Spacing.medium,
+    },
+    dividerLine: {
+      flex: 1,
+      height: 1,
+      backgroundColor: colors.alternate + '33',
+    },
+    dividerText: {
+      ...Typography.label3,
+      color: colors.secondaryText,
+      marginHorizontal: Spacing.small,
+      fontFamily: getFontFamily(500),
+    },
+    consentContainer: { marginVertical: Spacing.medium },
+    checkboxRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: Spacing.small,
+    },
+    checkbox: {
+      width: 20,
+      height: 20,
+      borderWidth: 2,
+      borderColor: colors.alternate + '66',
+      borderRadius: 4,
+      marginRight: Spacing.small,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    checkboxChecked: {
+      backgroundColor: colors.tertiary,
+      borderColor: colors.tertiary,
+    },
+    checkmark: {
+      color: colors.primaryBackground,
+      fontSize: 14,
+      fontWeight: 'bold',
+    },
+    consentText: {
+      ...Typography.body4,
+      color: colors.secondaryText,
+      fontFamily: getFontFamily(400),
+      flex: 1,
+    },
+    linkText: {
+      color: colors.tertiary,
+      fontFamily: getFontFamily(600),
+      textDecorationLine: 'underline',
+    },
+  });
+}
 
 export default AuthScreen;

@@ -1,37 +1,135 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   View,
   Text,
   Image,
   StyleSheet,
   TouchableOpacity,
-  Dimensions,
 } from 'react-native';
 import { Post } from '../../types';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { likePost } from '../../store/slices/feedSlice';
 import Card from '../common/Card';
+import ReportModal from '../common/ReportModal';
 import {
-  Colors,
   Typography,
   Spacing,
-  BorderRadius,
   IconSize,
   TouchTarget,
 } from '../../constants/theme';
+import type { ThemeColors } from '../../constants/theme';
+import { useTheme } from '../../utils/theme';
+import { useResponsiveLayout } from '../../utils/useResponsiveLayout';
 import { getFontFamily } from '../../utils/fonts';
 import { formatDateShort } from '../../utils/locale';
-
-const { width } = Dimensions.get('window');
 
 interface PostCardProps {
   post: Post;
 }
 
+function makeStyles(colors: ThemeColors) {
+  return StyleSheet.create({
+    container: { marginBottom: Spacing.medium, marginHorizontal: Spacing.xxs },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: Spacing.small,
+    },
+    avatar: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      marginRight: Spacing.small,
+    },
+    avatarPlaceholder: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: colors.tertiary,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: Spacing.small,
+    },
+    avatarText: {
+      color: colors.primaryBackground,
+      fontFamily: getFontFamily(700),
+      fontSize: 16,
+    },
+    userName: {
+      ...Typography.label1,
+      color: colors.primaryText,
+      fontFamily: getFontFamily(600),
+      flex: 1,
+    },
+    reportButton: {
+      minWidth: TouchTarget.minimum,
+      minHeight: TouchTarget.minimum,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    reportIcon: {
+      fontSize: IconSize.large,
+      color: colors.secondaryText,
+    },
+    image: {},
+    actions: {
+      flexDirection: 'row',
+      padding: Spacing.small,
+      paddingTop: Spacing.xs,
+    },
+    actionButton: {
+      marginRight: Spacing.medium,
+      minWidth: TouchTarget.minimum,
+      minHeight: TouchTarget.minimum,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    actionIcon: { fontSize: IconSize.large },
+    likedIcon: { fontSize: IconSize.large },
+    likes: {
+      ...Typography.label1,
+      color: colors.primaryText,
+      paddingHorizontal: Spacing.small,
+      marginBottom: Spacing.xxs,
+      fontFamily: getFontFamily(600),
+    },
+    caption: {
+      flexDirection: 'row',
+      paddingHorizontal: Spacing.small,
+      marginBottom: Spacing.xxs,
+    },
+    captionText: {
+      ...Typography.body3,
+      flex: 1,
+      color: colors.primaryText,
+      fontFamily: getFontFamily(400),
+    },
+    viewComments: {
+      ...Typography.label4,
+      color: colors.secondaryText,
+      paddingHorizontal: Spacing.small,
+      marginBottom: Spacing.xxs,
+      fontFamily: getFontFamily(400),
+    },
+    timestamp: {
+      ...Typography.label5,
+      color: colors.secondaryText,
+      paddingHorizontal: Spacing.small,
+      paddingBottom: Spacing.small,
+      fontFamily: getFontFamily(400),
+    },
+  });
+}
+
 const PostCard: React.FC<PostCardProps> = ({ post }) => {
+  const { colors } = useTheme();
+  const { contentWidth } = useResponsiveLayout();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
   const isLiked = user ? post.likedBy.includes(user.id) : false;
+  const [reportVisible, setReportVisible] = useState(false);
+  const canReport = user && post.userId !== user.id;
 
   const handleLike = () => {
     if (user) {
@@ -53,11 +151,24 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
           </View>
         )}
         <Text style={styles.userName}>{post.userName}</Text>
+        {canReport && (
+          <TouchableOpacity
+            style={styles.reportButton}
+            onPress={() => setReportVisible(true)}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <Text style={styles.reportIcon}>⋯</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
-      {/* Image */}
+      {/* Image - contentWidth caps size on tablet for a readable feed */}
       {post.imageUrl && (
-        <Image source={{ uri: post.imageUrl }} style={styles.image} resizeMode="cover" />
+        <Image
+          source={{ uri: post.imageUrl }}
+          style={[styles.image, { width: contentWidth, height: contentWidth }]}
+          resizeMode="cover"
+        />
       )}
 
       {/* Actions */}
@@ -109,99 +220,18 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
       <Text style={styles.timestamp}>
         {formatDateShort(post.createdAt)}
       </Text>
+
+      {user && (
+        <ReportModal
+          visible={reportVisible}
+          onClose={() => setReportVisible(false)}
+          userId={user.id}
+          reportedUserId={post.userId}
+          reportedPostId={post.id}
+        />
+      )}
     </Card>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    marginBottom: Spacing.medium,
-    marginHorizontal: Spacing.xxs,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: Spacing.small,
-  },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginRight: Spacing.small,
-  },
-  avatarPlaceholder: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: Colors.tertiary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: Spacing.small,
-  },
-  avatarText: {
-    color: Colors.primaryBackground,
-    fontFamily: getFontFamily(700),
-    fontSize: 16,
-  },
-  userName: {
-    ...Typography.label1,
-    color: Colors.primaryText,
-    fontFamily: getFontFamily(600),
-  },
-  image: {
-    width: width,
-    height: width,
-  },
-  actions: {
-    flexDirection: 'row',
-    padding: Spacing.small,
-    paddingTop: Spacing.xs,
-  },
-  actionButton: {
-    marginRight: Spacing.medium,
-    minWidth: TouchTarget.minimum,
-    minHeight: TouchTarget.minimum,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  actionIcon: {
-    fontSize: IconSize.large,
-  },
-  likedIcon: {
-    fontSize: IconSize.large,
-  },
-  likes: {
-    ...Typography.label1,
-    color: Colors.primaryText,
-    paddingHorizontal: Spacing.small,
-    marginBottom: Spacing.xxs,
-    fontFamily: getFontFamily(600),
-  },
-  caption: {
-    flexDirection: 'row',
-    paddingHorizontal: Spacing.small,
-    marginBottom: Spacing.xxs,
-  },
-  captionText: {
-    ...Typography.body3,
-    flex: 1,
-    color: Colors.primaryText,
-    fontFamily: getFontFamily(400),
-  },
-  viewComments: {
-    ...Typography.label4,
-    color: Colors.secondaryText,
-    paddingHorizontal: Spacing.small,
-    marginBottom: Spacing.xxs,
-    fontFamily: getFontFamily(400),
-  },
-  timestamp: {
-    ...Typography.label5,
-    color: Colors.secondaryText,
-    paddingHorizontal: Spacing.small,
-    paddingBottom: Spacing.small,
-    fontFamily: getFontFamily(400),
-  },
-});
 
 export default PostCard;

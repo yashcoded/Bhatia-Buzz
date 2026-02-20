@@ -4,19 +4,30 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Platform } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Colors, Typography, Spacing } from '../constants/theme';
+import { useTheme } from '../utils/theme';
 import { getFontFamily } from '../utils/fonts';
 import { contactInfo } from '../constants/config';
 import { formatDate } from '../utils/locale';
 import { useRTL, getTextAlign } from '../utils/rtl';
 
+const lastUpdatedDate = (() => {
+  try {
+    const d = new Date(contactInfo.legalDocumentsLastUpdated);
+    return isNaN(d.getTime()) ? contactInfo.legalDocumentsLastUpdated : formatDate(d);
+  } catch {
+    return contactInfo.legalDocumentsLastUpdated;
+  }
+})();
+
 const PrivacyPolicyScreen = () => {
+  const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const isRTL = useRTL();
   const textAlign = getTextAlign();
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.primaryBackground }]} edges={['bottom', 'left', 'right']}>
       <ScrollView 
         contentContainerStyle={[
           styles.content,
@@ -25,7 +36,7 @@ const PrivacyPolicyScreen = () => {
         showsVerticalScrollIndicator={false}
       >
         <Text style={[styles.title, { textAlign }]}>{t('privacy.title')}</Text>
-        <Text style={[styles.lastUpdated, { textAlign }]}>{t('privacy.lastUpdated')}: {formatDate(new Date())}</Text>
+        <Text style={[styles.lastUpdated, { textAlign }]}>{t('privacy.lastUpdated')}: {lastUpdatedDate}</Text>
 
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { textAlign }]}>{t('privacy.section1.title')}</Text>

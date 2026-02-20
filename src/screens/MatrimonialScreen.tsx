@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -12,13 +12,18 @@ import { fetchMatrimonialProfiles } from '../store/slices/matrimonialSlice';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
-import { Colors, Typography, Spacing, BorderRadius } from '../constants/theme';
+import { Typography, Spacing, BorderRadius } from '../constants/theme';
+import type { ThemeColors } from '../constants/theme';
+import { useTheme } from '../utils/theme';
 import { getFontFamily } from '../utils/fonts';
 import Button from '../components/common/Button';
+import FadeInView from '../components/common/FadeInView';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const MatrimonialScreen = () => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const dispatch = useAppDispatch();
   const navigation = useNavigation<NavigationProp>();
   const { profiles, loading } = useAppSelector((state) => state.matrimonial);
@@ -79,10 +84,10 @@ const MatrimonialScreen = () => {
     <View style={styles.container}>
       {loading ? (
         <View style={styles.centerContainer}>
-          <ActivityIndicator size="large" color={Colors.tertiary} />
+          <ActivityIndicator size="large" color={colors.tertiary} />
         </View>
       ) : (
-        <View style={styles.content}>
+        <FadeInView style={styles.content}>
           {!userProfile ? (
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyTitle}>No Profile Yet</Text>
@@ -118,116 +123,108 @@ const MatrimonialScreen = () => {
               </TouchableOpacity>
             </View>
           )}
-        </View>
+        </FadeInView>
       )}
     </View>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.primaryBackground,
-  },
-  signInGate: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: Spacing.xl,
-  },
-  signInGateTitle: {
-    ...Typography.headline3,
-    color: Colors.primaryText,
-    fontFamily: getFontFamily(600),
-    textAlign: 'center',
-    marginBottom: Spacing.small,
-  },
-  signInGateText: {
-    ...Typography.body3,
-    color: Colors.secondaryText,
-    fontFamily: getFontFamily(400),
-    textAlign: 'center',
-    marginBottom: Spacing.xl,
-    lineHeight: 22,
-  },
-  signInButton: {
-    minWidth: 200,
-  },
-  centerContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  content: {
-    flex: 1,
-    padding: Spacing.large,
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  emptyTitle: {
-    ...Typography.headline3,
-    color: Colors.primaryText,
-    fontFamily: getFontFamily(600),
-    marginBottom: Spacing.small,
-  },
-  emptyText: {
-    ...Typography.body3,
-    color: Colors.secondaryText,
-    textAlign: 'center',
-    marginBottom: Spacing.xl,
-  },
-  pendingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: Spacing.large,
-  },
-  pendingTitle: {
-    ...Typography.headline3,
-    color: Colors.primaryText,
-    fontFamily: getFontFamily(600),
-    marginBottom: Spacing.small,
-  },
-  pendingText: {
-    ...Typography.body3,
-    color: Colors.secondaryText,
-    textAlign: 'center',
-  },
-  profileContainer: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  welcomeText: {
-    ...Typography.headline3,
-    color: Colors.primaryText,
-    fontFamily: getFontFamily(600),
-    textAlign: 'center',
-    marginBottom: Spacing.xl,
-  },
-  button: {
-    backgroundColor: Colors.tertiary,
-    borderRadius: BorderRadius.button,
-    padding: Spacing.medium,
-    alignItems: 'center',
-    marginBottom: Spacing.medium,
-  },
-  secondaryButton: {
-    backgroundColor: Colors.primaryBackground,
-    borderWidth: 1,
-    borderColor: Colors.tertiary,
-  },
-  buttonText: {
-    color: Colors.primaryBackground,
-    ...Typography.label1,
-    fontFamily: getFontFamily(600),
-  },
-  secondaryButtonText: {
-    color: Colors.tertiary,
-  },
-});
+function makeStyles(colors: ThemeColors) {
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.primaryBackground,
+    },
+    signInGate: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: Spacing.xl,
+    },
+    signInGateTitle: {
+      ...Typography.headline3,
+      color: colors.primaryText,
+      fontFamily: getFontFamily(600),
+      textAlign: 'center',
+      marginBottom: Spacing.small,
+    },
+    signInGateText: {
+      ...Typography.body3,
+      color: colors.secondaryText,
+      fontFamily: getFontFamily(400),
+      textAlign: 'center',
+      marginBottom: Spacing.xl,
+      lineHeight: 22,
+    },
+    signInButton: { minWidth: 200 },
+    centerContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    content: { flex: 1, padding: Spacing.large },
+    emptyContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    emptyTitle: {
+      ...Typography.headline3,
+      color: colors.primaryText,
+      fontFamily: getFontFamily(600),
+      marginBottom: Spacing.small,
+    },
+    emptyText: {
+      ...Typography.body3,
+      color: colors.secondaryText,
+      textAlign: 'center',
+      marginBottom: Spacing.xl,
+    },
+    pendingContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: Spacing.large,
+    },
+    pendingTitle: {
+      ...Typography.headline3,
+      color: colors.primaryText,
+      fontFamily: getFontFamily(600),
+      marginBottom: Spacing.small,
+    },
+    pendingText: {
+      ...Typography.body3,
+      color: colors.secondaryText,
+      textAlign: 'center',
+    },
+    profileContainer: { flex: 1, justifyContent: 'center' },
+    welcomeText: {
+      ...Typography.headline3,
+      color: colors.primaryText,
+      fontFamily: getFontFamily(600),
+      textAlign: 'center',
+      marginBottom: Spacing.xl,
+    },
+    button: {
+      backgroundColor: colors.tertiary,
+      borderRadius: BorderRadius.button,
+      padding: Spacing.medium,
+      alignItems: 'center',
+      marginBottom: Spacing.medium,
+    },
+    secondaryButton: {
+      backgroundColor: colors.primaryBackground,
+      borderWidth: 1,
+      borderColor: colors.tertiary,
+    },
+    buttonText: {
+      color: colors.primaryBackground,
+      ...Typography.label1,
+      fontFamily: getFontFamily(600),
+    },
+    secondaryButtonText: { color: colors.tertiary },
+  });
+}
 
 export default MatrimonialScreen;
 

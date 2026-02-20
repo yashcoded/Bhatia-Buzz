@@ -3,28 +3,53 @@
  * Based on Apple Design Award-Worthy UI Principles
  */
 
-// Colors
-export const Colors = {
-  // Primary colors
-  primary: '#FFB74D', // Sunrise Gold - Brand Title & Primary Accents
-  secondary: '#6B705C', // Olive Green - Nature/Secondary Accents
-  tertiary: '#5D9CEC', // Sky Blue - Scarf & Primary Buttons
-  alternate: '#D76D5B', // Clay Red - Borders, Dividers, & Book Accents
+export type ColorScheme = 'light' | 'dark';
 
-  // Text colors
-  primaryText: '#2C2520', // Ink Primary - Main Text
-  secondaryText: '#6E665E', // Ink Secondary - De-emphasized Text
-
-  // Background colors
-  primaryBackground: '#FFFFFF', // Paper - Main Page Background
-  secondaryBackground: '#FDFBF7', // Parchment - Scroll/Card Backgrounds
-
-  // Semantic colors
+// Light theme (default)
+export const LightColors = {
+  primary: '#FFB74D',
+  secondary: '#6B705C',
+  tertiary: '#5D9CEC',
+  alternate: '#D76D5B',
+  primaryText: '#2C2520',
+  secondaryText: '#6E665E',
+  primaryBackground: '#FFFFFF',
+  secondaryBackground: '#FDFBF7',
+  // Softer header so it's not pure white (easier on eyes, works with notch/camera)
+  headerBackground: '#F2F2F2',
+  tabBarBackground: '#F2F2F2',
   success: '#34C759',
   error: '#FF3B30',
   warning: '#FF9500',
   info: '#5D9CEC',
 } as const;
+
+// Dark theme
+export const DarkColors = {
+  primary: '#FFB74D',
+  secondary: '#8B9A7A',
+  tertiary: '#7AB8F5',
+  alternate: '#E07D6B',
+  primaryText: '#F2F2F2',
+  secondaryText: '#B0B0B0',
+  primaryBackground: '#121212',
+  secondaryBackground: '#1E1E1E',
+  headerBackground: '#1C1C1E',
+  tabBarBackground: '#1C1C1E',
+  success: '#34C759',
+  error: '#FF6B6B',
+  warning: '#FFB84D',
+  info: '#7AB8F5',
+} as const;
+
+export type ThemeColors = typeof LightColors;
+
+export function getThemeColors(scheme: ColorScheme): ThemeColors {
+  return scheme === 'dark' ? DarkColors : LightColors;
+}
+
+/** @deprecated Use getThemeColors('light') or useTheme() for light/dark. Kept for backward compatibility. */
+export const Colors = LightColors;
 
 // Opacity levels
 export const Opacity = {
@@ -227,5 +252,13 @@ export const FontFamily = {
   primary: 'Outfit', // Clean, modern, readable
   script: 'Borel', // For special moments like greetings
   monospace: 'Montserrat', // For numbers/stats
+} as const;
+
+// Responsive layout (phone vs tablet / iPad)
+export const Layout = {
+  /** Min width to treat as tablet (e.g. iPad) */
+  tabletMinWidth: 600,
+  /** Max content width so layout doesn't stretch too wide on tablet */
+  maxContentWidth: 600,
 } as const;
 

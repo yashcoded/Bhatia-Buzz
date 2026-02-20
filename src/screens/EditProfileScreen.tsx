@@ -29,11 +29,13 @@ import {
   TouchTarget,
   Shadows,
 } from '../constants/theme';
+import { useTheme } from '../utils/theme';
 import { getFontFamily } from '../utils/fonts';
 import { uploadProfilePhoto } from '../services/firebase/storage';
 import { updateFirestoreUser, updateFirebaseAuthProfile } from '../services/firebase/auth';
 
 const EditProfileScreen = () => {
+  const { colors } = useTheme();
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
   const insets = useSafeAreaInsets();
@@ -486,7 +488,7 @@ const EditProfileScreen = () => {
   const displayImageUri = selectedImageUri || photoURL;
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.primaryBackground }]} edges={['bottom', 'left', 'right']}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}

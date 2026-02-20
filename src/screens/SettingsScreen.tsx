@@ -1,26 +1,147 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert, Platform, Share } from 'react-native';
+import React, { useState, useMemo } from 'react';
+import { View, Text, StyleSheet, ScrollView, Alert, Platform, Share, TouchableOpacity } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { deleteAccount, resendVerificationEmail } from '../store/slices/authSlice';
+import { setAppearance, APPEARANCE_STORAGE_KEY } from '../store/slices/appearanceSlice';
+import type { AppearancePreference } from '../store/slices/appearanceSlice';
 import { exportUserData, exportDataToJSON } from '../utils/dataExport';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
-import { Colors, Typography, Spacing, BorderRadius } from '../constants/theme';
+import FadeInView from '../components/common/FadeInView';
+import { Typography, Spacing, BorderRadius } from '../constants/theme';
+import type { ThemeColors } from '../constants/theme';
+import { useTheme } from '../utils/theme';
+import { useResponsiveLayout } from '../utils/useResponsiveLayout';
 import { getFontFamily } from '../utils/fonts';
 import { RootStackParamList } from '../types';
 import { formatDate } from '../utils/locale';
 
 type SettingsScreenNavigationProp = StackNavigationProp<RootStackParamList>;
 
+function makeStyles(colors: ThemeColors) {
+  return StyleSheet.create({
+    container: { flex: 1 },
+    fadeWrap: { flex: 1 },
+    content: { padding: Spacing.standard },
+    section: { marginBottom: Spacing.large },
+    sectionTitle: {
+      ...Typography.headline4,
+      color: colors.primaryText,
+      fontFamily: getFontFamily(600),
+      marginBottom: Spacing.xs,
+    },
+    sectionDescription: {
+      ...Typography.body3,
+      color: colors.secondaryText,
+      fontFamily: getFontFamily(400),
+      marginBottom: Spacing.medium,
+      lineHeight: 22,
+    },
+    appearanceRow: {
+      flexDirection: 'row' as const,
+      flexWrap: 'wrap' as const,
+      gap: 12,
+      marginTop: Spacing.small,
+    },
+    appearanceChip: {
+      paddingVertical: 10,
+      paddingHorizontal: 16,
+      borderRadius: BorderRadius.medium,
+      borderWidth: 1.5,
+      borderColor: colors.secondaryText + '50',
+    },
+    appearanceChipText: {
+      ...Typography.label2,
+      color: colors.secondaryText,
+      fontFamily: getFontFamily(500),
+    },
+    buttonContainer: { marginTop: Spacing.small },
+    dangerSection: {
+      marginTop: Spacing.medium,
+      paddingTop: Spacing.medium,
+      borderTopWidth: 1,
+      borderTopColor: colors.secondaryText + '33',
+    },
+    dangerTitle: {
+      ...Typography.label1,
+      color: colors.error,
+      fontFamily: getFontFamily(600),
+      marginBottom: Spacing.xs,
+    },
+    dangerDescription: {
+      ...Typography.body4,
+      color: colors.secondaryText,
+      fontFamily: getFontFamily(400),
+      marginBottom: Spacing.medium,
+      lineHeight: 20,
+    },
+    infoRow: {
+      flexDirection: 'row' as const,
+      justifyContent: 'space-between' as const,
+      alignItems: 'center' as const,
+      paddingVertical: Spacing.small,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.secondaryText + '1A',
+    },
+    infoLabel: {
+      ...Typography.label2,
+      color: colors.secondaryText,
+      fontFamily: getFontFamily(500),
+      flex: 1,
+    },
+    infoValue: {
+      ...Typography.body3,
+      color: colors.primaryText,
+      fontFamily: getFontFamily(400),
+      flex: 1,
+      textAlign: 'right' as const,
+    },
+    verificationBanner: {
+      borderLeftWidth: 4,
+      borderLeftColor: colors.tertiary,
+    },
+    verificationTitle: {
+      ...Typography.label1,
+      color: colors.primaryText,
+      fontFamily: getFontFamily(600),
+      marginBottom: Spacing.xs,
+    },
+    verificationText: {
+      ...Typography.body3,
+      color: colors.secondaryText,
+      fontFamily: getFontFamily(400),
+      marginBottom: Spacing.small,
+      lineHeight: 22,
+    },
+  });
+}
+
+const APPEARANCE_OPTIONS: { value: AppearancePreference; label: string }[] = [
+  { value: 'system', label: 'System default' },
+  { value: 'light', label: 'Light' },
+  { value: 'dark', label: 'Dark' },
+];
+
 const SettingsScreen = () => {
   const navigation = useNavigation<SettingsScreenNavigationProp>();
   const dispatch = useAppDispatch();
   const { user, loading: authLoading } = useAppSelector((state) => state.auth);
+  const appearance = useAppSelector((state) => state.appearance.preference);
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const insets = useSafeAreaInsets();
+  const { contentWidth, isTablet } = useResponsiveLayout();
   const [isExporting, setIsExporting] = useState(false);
+  const contentWrapStyle = isTablet ? { maxWidth: contentWidth, width: '100%' as const, alignSelf: 'center' as const } : undefined;
+
+  const handleAppearanceChange = (value: AppearancePreference) => {
+    dispatch(setAppearance(value));
+    AsyncStorage.setItem(APPEARANCE_STORAGE_KEY, value);
+  };
 
   const handleResendVerification = async () => {
     try {
@@ -60,26 +181,19 @@ const SettingsScreen = () => {
 
   const handleDeleteAccount = () => {
     Alert.alert(
-      'Delete Account',
-      'Are you sure you want to delete your account? This action cannot be undone. All your data including posts, requests, and profile information will be permanently deleted.',
+      'Delete My Account',
+      'Your account and all associated data (posts, requests, profile, matrimonial profile) will be permanently deleted from our servers and cannot be recovered. This action cannot be undone.',
       [
+        { text: 'Cancel', style: 'cancel' },
         {
-          text: 'Cancel',
-          style: 'cancel',
-        },
-        {
-          text: 'Delete',
+          text: 'Continue',
           style: 'destructive',
           onPress: () => {
-            // Second confirmation
             Alert.alert(
               'Final Confirmation',
-              'This will permanently delete your account and all associated data. This action cannot be reversed. Are you absolutely sure?',
+              'Are you sure you want to permanently delete your account? All your data will be removed and you will be signed out. This cannot be reversed.',
               [
-                {
-                  text: 'Cancel',
-                  style: 'cancel',
-                },
+                { text: 'Cancel', style: 'cancel' },
                 {
                   text: 'Yes, Delete My Account',
                   style: 'destructive',
@@ -88,7 +202,7 @@ const SettingsScreen = () => {
                       await dispatch(deleteAccount()).unwrap();
                       Alert.alert(
                         'Account Deleted',
-                        'Your account has been successfully deleted. You will be signed out.',
+                        'Your account has been permanently deleted. You have been signed out.',
                         [{ text: 'OK' }]
                       );
                     } catch (error: any) {
@@ -109,11 +223,59 @@ const SettingsScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
-      <ScrollView 
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={[styles.content, { paddingTop: Platform.OS === 'ios' ? insets.top + Spacing.medium : Spacing.standard }]}
-      >
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.primaryBackground }]} edges={['bottom', 'left', 'right']}>
+      <FadeInView style={styles.fadeWrap}>
+        <ScrollView 
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={[styles.content, { paddingTop: Platform.OS === 'ios' ? insets.top + Spacing.medium : Spacing.standard }]}
+        >
+          <View style={contentWrapStyle}>
+          {/* Appearance */}
+          <Card style={styles.section} padding={Spacing.medium}>
+            <Text style={styles.sectionTitle}>Appearance</Text>
+            <Text style={styles.sectionDescription}>
+              Use system default colors or choose light/dark theme
+            </Text>
+            <View style={styles.appearanceRow}>
+              {APPEARANCE_OPTIONS.map((opt) => (
+                <TouchableOpacity
+                  key={opt.value}
+                  style={[
+                    styles.appearanceChip,
+                    appearance === opt.value && { backgroundColor: colors.tertiary + '25', borderColor: colors.tertiary },
+                  ]}
+                  onPress={() => handleAppearanceChange(opt.value)}
+                >
+                  <Text
+                    style={[
+                      styles.appearanceChipText,
+                      appearance === opt.value && { color: colors.tertiary, fontFamily: getFontFamily(600) },
+                    ]}
+                  >
+                    {opt.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </Card>
+
+          {/* Admin – Review requests and profiles (admin only) – opens Requests tab with admin section */}
+          {user?.role === 'admin' && (
+            <Card style={styles.section} padding={Spacing.medium}>
+              <Text style={styles.sectionTitle}>Admin</Text>
+              <Text style={styles.sectionDescription}>
+                Review and approve pending requests and matrimonial profiles
+              </Text>
+              <View style={styles.buttonContainer}>
+                <Button
+                  title="Go to Requests"
+                  onPress={() => navigation.navigate('Requests' as any, { openMyRequests: true })}
+                  variant="secondary"
+                />
+              </View>
+            </Card>
+          )}
+
           {/* Edit Profile Section */}
           <Card style={styles.section} padding={Spacing.medium}>
             <Text style={styles.sectionTitle}>Profile Settings</Text>
@@ -240,96 +402,12 @@ const SettingsScreen = () => {
               </Text>
             </View>
           </Card>
-      </ScrollView>
+          </View>
+        </ScrollView>
+      </FadeInView>
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.primaryBackground,
-  },
-  content: {
-    padding: Spacing.standard,
-  },
-  section: {
-    marginBottom: Spacing.large,
-  },
-  sectionTitle: {
-    ...Typography.headline4,
-    color: Colors.primaryText,
-    fontFamily: getFontFamily(600),
-    marginBottom: Spacing.xs,
-  },
-  sectionDescription: {
-    ...Typography.body3,
-    color: Colors.secondaryText,
-    fontFamily: getFontFamily(400),
-    marginBottom: Spacing.medium,
-    lineHeight: 22,
-  },
-  buttonContainer: {
-    marginTop: Spacing.small,
-  },
-  dangerSection: {
-    marginTop: Spacing.medium,
-    paddingTop: Spacing.medium,
-    borderTopWidth: 1,
-    borderTopColor: Colors.alternate + '33',
-  },
-  dangerTitle: {
-    ...Typography.label1,
-    color: Colors.error,
-    fontFamily: getFontFamily(600),
-    marginBottom: Spacing.xs,
-  },
-  dangerDescription: {
-    ...Typography.body4,
-    color: Colors.secondaryText,
-    fontFamily: getFontFamily(400),
-    marginBottom: Spacing.medium,
-    lineHeight: 20,
-  },
-  infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: Spacing.small,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.alternate + '1A',
-  },
-  infoLabel: {
-    ...Typography.label2,
-    color: Colors.secondaryText,
-    fontFamily: getFontFamily(500),
-    flex: 1,
-  },
-  infoValue: {
-    ...Typography.body3,
-    color: Colors.primaryText,
-    fontFamily: getFontFamily(400),
-    flex: 1,
-    textAlign: 'right',
-  },
-  verificationBanner: {
-    borderLeftWidth: 4,
-    borderLeftColor: Colors.tertiary,
-  },
-  verificationTitle: {
-    ...Typography.label1,
-    color: Colors.primaryText,
-    fontFamily: getFontFamily(600),
-    marginBottom: Spacing.xs,
-  },
-  verificationText: {
-    ...Typography.body3,
-    color: Colors.secondaryText,
-    fontFamily: getFontFamily(400),
-    marginBottom: Spacing.small,
-    lineHeight: 22,
-  },
-});
 
 export default SettingsScreen;
 

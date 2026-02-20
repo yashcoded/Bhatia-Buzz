@@ -1,15 +1,20 @@
 import React, { useEffect } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { StatusBar } from 'expo-status-bar';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { getCurrentUser, setUser } from '../store/slices/authSlice';
 import * as authService from '../services/firebase/auth';
 import { RootStackParamList } from '../types';
-import { Colors, Typography } from '../constants/theme';
+import { Typography } from '../constants/theme';
 import { getFontFamily } from '../utils/fonts';
-import Svg, { Path } from 'react-native-svg';
+import { useTheme } from '../utils/theme';
+import { Home, Users, Heart, CircleUser, SlidersHorizontal } from 'lucide-react-native';
+import { TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import GlassSurface from '../components/common/GlassSurface';
 
 // Screens (will create these next)
 import AuthScreen from '../screens/AuthScreen';
@@ -27,91 +32,32 @@ import TermsOfServiceScreen from '../screens/TermsOfServiceScreen';
 import PanjaKhadaScreen from '../screens/PanjaKhadaScreen';
 import CreateMatrimonialProfileScreen from '../screens/CreateMatrimonialProfileScreen';
 import AboutDeveloperScreen from '../screens/AboutDeveloperScreen';
+import MatchFilterScreen from '../screens/MatchFilterScreen';
+import AdminPendingRequestsScreen from '../screens/AdminPendingRequestsScreen';
+import AdminPendingMatrimonialScreen from '../screens/AdminPendingMatrimonialScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<RootStackParamList>();
 
-// Tab Icons
-const FeedIcon = ({ color, size }: { color: string; size: number }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-    <Path
-      d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z"
-      stroke={color}
-      strokeWidth={2}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <Path
-      d="M9 22V12H15V22"
-      stroke={color}
-      strokeWidth={2}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </Svg>
-);
-
-const PanjaKhadaIcon = ({ color, size }: { color: string; size: number }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-    <Path
-      d="M12 2L2 7L12 12L22 7L12 2Z"
-      stroke={color}
-      strokeWidth={2}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <Path
-      d="M2 17L12 22L22 17"
-      stroke={color}
-      strokeWidth={2}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <Path
-      d="M2 12L12 17L22 12"
-      stroke={color}
-      strokeWidth={2}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </Svg>
-);
-
-const MatrimonialIcon = ({ color, size }: { color: string; size: number }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-    <Path
-      d="M20.84 4.61C20.3292 4.099 19.7228 3.69365 19.0554 3.41708C18.3879 3.14052 17.6725 2.99817 16.95 2.99817C16.2275 2.99817 15.5121 3.14052 14.8446 3.41708C14.1772 3.69365 13.5708 4.099 13.06 4.61L12 5.67L10.94 4.61C9.9083 3.57831 8.50903 2.99871 7.05 2.99871C5.59096 2.99871 4.19169 3.57831 3.16 4.61C2.1283 5.64169 1.54871 7.04097 1.54871 8.5C1.54871 9.95903 2.1283 11.3583 3.16 12.39L4.22 13.45L12 21.23L19.78 13.45L20.84 12.39C21.351 11.8792 21.7563 11.2728 22.0329 10.6054C22.3095 9.93789 22.4518 9.22249 22.4518 8.5C22.4518 7.77751 22.3095 7.0621 22.0329 6.39464C21.7563 5.72718 21.351 5.12075 20.84 4.61Z"
-      stroke={color}
-      strokeWidth={2}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </Svg>
-);
-
-const ProfileIcon = ({ color, size }: { color: string; size: number }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-    <Path
-      d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21"
-      stroke={color}
-      strokeWidth={2}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <Path
-      d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z"
-      stroke={color}
-      strokeWidth={2}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </Svg>
-);
+function MatchFilterHeaderButton() {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { colors } = useTheme();
+  return (
+    <TouchableOpacity
+      onPress={() => navigation.navigate('MatchFilter')}
+      style={{ padding: 8, marginRight: 4 }}
+      hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+    >
+      <SlidersHorizontal color={colors.primaryText} size={24} />
+    </TouchableOpacity>
+  );
+}
 
 // Main Tab Navigator
 const MainTabs = () => {
   const insets = useSafeAreaInsets();
   const user = useAppSelector((state) => state.auth.user);
+  const { colors } = useTheme();
   const tabBarBaseHeight = 58;
   const tabBarPaddingBottom = Math.max(insets.bottom, 10);
   const tabBarHeight = tabBarBaseHeight + tabBarPaddingBottom;
@@ -120,17 +66,26 @@ const MainTabs = () => {
     <Tab.Navigator
       screenOptions={{
         headerShown: true,
-        tabBarActiveTintColor: Colors.tertiary,
-        tabBarInactiveTintColor: Colors.secondaryText,
+        tabBarActiveTintColor: colors.tertiary,
+        tabBarInactiveTintColor: colors.secondaryText,
         animation: 'shift',
-        animationEnabled: true,
         tabBarStyle: {
-          backgroundColor: Colors.primaryBackground,
-          borderTopColor: Colors.alternate + '33',
+          backgroundColor: 'transparent',
+          borderTopWidth: 0,
           height: tabBarHeight,
           paddingBottom: tabBarPaddingBottom,
           paddingTop: 8,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.06,
+          shadowRadius: 8,
+          elevation: 8,
         },
+        tabBarBackground: () => (
+          <GlassSurface
+            style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }}
+          />
+        ),
         tabBarItemStyle: {
           paddingVertical: 2,
         },
@@ -139,14 +94,14 @@ const MainTabs = () => {
           fontFamily: getFontFamily(500),
         },
         headerStyle: {
-          backgroundColor: Colors.primaryBackground,
+          backgroundColor: colors.headerBackground,
         },
         headerTitleStyle: {
           ...Typography.headline4,
-          color: Colors.primaryText,
+          color: colors.primaryText,
           fontFamily: getFontFamily(600),
         },
-        headerTintColor: Colors.primaryText,
+        headerTintColor: colors.primaryText,
       }}
     >
       <Tab.Screen
@@ -155,7 +110,7 @@ const MainTabs = () => {
         options={{
           title: 'Feed',
           tabBarLabel: 'Feed',
-          tabBarIcon: ({ color, size }) => <FeedIcon color={color} size={size} />,
+          tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
           headerShown: false,
         }}
       />
@@ -165,7 +120,7 @@ const MainTabs = () => {
         options={{
           title: 'Panja Khada',
           tabBarLabel: 'Panja Khada',
-          tabBarIcon: ({ color, size }) => <PanjaKhadaIcon color={color} size={size} />,
+          tabBarIcon: ({ color, size }) => <Users color={color} size={size} />,
           headerShown: true,
         }}
       />
@@ -176,7 +131,7 @@ const MainTabs = () => {
           options={{
             title: 'Matrimonial',
             tabBarLabel: 'Match',
-            tabBarIcon: ({ color, size }) => <MatrimonialIcon color={color} size={size} />,
+            tabBarIcon: ({ color, size }) => <Heart color={color} size={size} />,
           }}
         />
       )}
@@ -186,7 +141,7 @@ const MainTabs = () => {
         options={{
           title: 'Profile',
           tabBarLabel: 'Profile',
-          tabBarIcon: ({ color, size }) => <ProfileIcon color={color} size={size} />,
+          tabBarIcon: ({ color, size }) => <CircleUser color={color} size={size} />,
         }}
       />
     </Tab.Navigator>
@@ -196,7 +151,8 @@ const MainTabs = () => {
 // Root Navigator
 const AppNavigator = () => {
   const dispatch = useAppDispatch();
-  const { isAuthenticated, loading } = useAppSelector((state) => state.auth);
+  const { loading } = useAppSelector((state) => state.auth);
+  const { colors, isDark } = useTheme();
 
   useEffect(() => {
     // Listen to auth state changes
@@ -215,15 +171,52 @@ const AppNavigator = () => {
     return null;
   }
 
+  const stackScreenOptions = {
+    headerShown: false,
+    contentStyle: { backgroundColor: colors.primaryBackground },
+    animation: 'slide_from_right' as const,
+    gestureEnabled: true,
+    fullScreenGestureEnabled: true,
+    headerTransparent: true,
+    headerBackground: () => (
+      <GlassSurface
+        style={{
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          top: 0,
+          bottom: 0,
+        }}
+      />
+    ),
+    headerStyle: {
+      backgroundColor: 'transparent',
+    },
+    headerShadowVisible: false,
+    headerBackTitleVisible: false,
+    headerTitleStyle: {
+      ...Typography.headline4,
+      color: colors.primaryText,
+      fontFamily: getFontFamily(600),
+    },
+    headerTintColor: colors.primaryText,
+  };
+
   return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <>
+      <StatusBar style={isDark ? 'light' : 'dark'} />
+      <NavigationContainer>
+        <Stack.Navigator screenOptions={stackScreenOptions}>
         {/* Always allow access to Main tabs (guest mode) */}
         <Stack.Screen name="Main" component={MainTabs} />
         <Stack.Screen
           name="Auth"
           component={AuthScreen}
-          options={{ presentation: 'modal', headerShown: false }}
+          options={{
+            presentation: 'modal',
+            headerShown: false,
+            animation: 'slide_from_bottom',
+          }}
         />
         <Stack.Screen
           name="RequestDetail"
@@ -238,7 +231,18 @@ const AppNavigator = () => {
         <Stack.Screen
           name="MatrimonialSwipe"
           component={MatrimonialSwipeScreen}
-          options={{ headerShown: true, title: 'Find Matches' }}
+          options={{
+            headerShown: true,
+            title: 'Find Matches',
+            headerRight: () => <MatchFilterHeaderButton />,
+            gestureEnabled: false,
+            fullScreenGestureEnabled: false,
+          }}
+        />
+        <Stack.Screen
+          name="MatchFilter"
+          component={MatchFilterScreen}
+          options={{ headerShown: true, title: 'Filters' }}
         />
         <Stack.Screen
           name="Settings"
@@ -275,8 +279,19 @@ const AppNavigator = () => {
           component={AboutDeveloperScreen}
           options={{ headerShown: true, title: 'About & Developer' }}
         />
+        <Stack.Screen
+          name="AdminPendingRequests"
+          component={AdminPendingRequestsScreen}
+          options={{ headerShown: true, title: 'Pending Requests' }}
+        />
+        <Stack.Screen
+          name="AdminPendingMatrimonial"
+          component={AdminPendingMatrimonialScreen}
+          options={{ headerShown: true, title: 'Pending Matrimonial Profiles' }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
+    </>
   );
 };
 

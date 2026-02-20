@@ -69,6 +69,13 @@ const convertFirebaseUser = async (firebaseUser: FirebaseUser): Promise<User | n
     }
   }
 
+  // Suspended users (e.g. 5+ reports) are signed out
+  if (userDoc.exists() && userData?.suspended === true) {
+    devLog('Account suspended, signing out...');
+    await firebaseSignOut(auth);
+    return null;
+  }
+
   // Auto-create user document if it doesn't exist
   if (!userDoc.exists()) {
     devLog('User document not found, creating one...');

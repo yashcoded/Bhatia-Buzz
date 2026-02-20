@@ -253,14 +253,107 @@ export const getMatrimonialProfiles = async (): Promise<MatrimonialProfile[]> =>
   }
 };
 
+/** Get a single matrimonial profile by ID (any status). Used by admin detail view. */
+export const getMatrimonialProfileById = async (profileId: string): Promise<MatrimonialProfile | null> => {
+  const profileRef = doc(firestore, COLLECTIONS.MATRIMONIAL_PROFILES, profileId);
+  const snap = await getDoc(profileRef);
+  if (!snap.exists()) return null;
+  return { id: snap.id, ...convertTimestamp(snap.data()) } as MatrimonialProfile;
+};
+
+/**
+ * Fetch matrimonial profiles with status 'pending' for admin review.
+ * Does not require composite index (single where on status).
+ */
+export const getMatrimonialProfilesForAdmin = async (): Promise<MatrimonialProfile[]> => {
+  const q = query(
+    collection(firestore, COLLECTIONS.MATRIMONIAL_PROFILES),
+    where('status', '==', 'pending'),
+    orderBy('createdAt', 'desc'),
+    limit(100)
+  );
+  try {
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...convertTimestamp(doc.data()),
+    })) as MatrimonialProfile[];
+  } catch (err: any) {
+    if (err?.code === 'failed-precondition') {
+      const qNoOrder = query(
+        collection(firestore, COLLECTIONS.MATRIMONIAL_PROFILES),
+        where('status', '==', 'pending'),
+        limit(100)
+      );
+      const snapshot = await getDocs(qNoOrder);
+      const list = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...convertTimestamp(doc.data()),
+      })) as MatrimonialProfile[];
+      return list.sort((a, b) => (a.createdAt > b.createdAt ? -1 : 1));
+    }
+    throw err;
+  }
+};
+
+/** Normalize email for duplicate check and storage (lowercase, trim). */
+export const normalizeMatrimonialEmail = (email: string): string =>
+  String(email || '').trim().toLowerCase();
+
+/**
+ * Check if a profile already exists for this email (e.g. parent added son/daughter, or self already created).
+ * Queries both emailIdNormalized (new docs) and personalInfo.emailId (legacy or normalized stored value).
+ */
+export const getMatrimonialProfileByEmail = async (
+  normalizedEmail: string
+): Promise<MatrimonialProfile | null> => {
+  if (!normalizedEmail) return null;
+  const coll = collection(firestore, COLLECTIONS.MATRIMONIAL_PROFILES);
+  const q1 = query(
+    coll,
+    where('personalInfo.emailIdNormalized', '==', normalizedEmail),
+    limit(1)
+  );
+  const snap1 = await getDocs(q1);
+  if (snap1.docs.length > 0) {
+    const d = snap1.docs[0];
+    return { id: d.id, ...convertTimestamp(d.data()) } as MatrimonialProfile;
+  }
+  const q2 = query(
+    coll,
+    where('personalInfo.emailId', '==', normalizedEmail),
+    limit(1)
+  );
+  const snap2 = await getDocs(q2);
+  const first = snap2.docs[0];
+  if (!first) return null;
+  return { id: first.id, ...convertTimestamp(first.data()) } as MatrimonialProfile;
+};
+
 export const createMatrimonialProfile = async (
   profile: Omit<MatrimonialProfile, 'id' | 'createdAt' | 'status'>
 ): Promise<string> => {
-  const docRef = await addDoc(collection(firestore, COLLECTIONS.MATRIMONIAL_PROFILES), {
+  const email = profile.personalInfo?.emailId;
+  const normalizedEmail = normalizeMatrimonialEmail(email || '');
+  if (normalizedEmail) {
+    const existing = await getMatrimonialProfileByEmail(normalizedEmail);
+    if (existing) {
+      throw new Error(
+        'A profile with this email already exists. If a parent created one for you, you cannot create another. Please contact support if you need to update it.'
+      );
+    }
+  }
+
+  const payload = {
     ...profile,
+    personalInfo: {
+      ...profile.personalInfo,
+      emailIdNormalized: normalizedEmail || undefined,
+    },
     status: 'pending',
     createdAt: Timestamp.now(),
-  });
+  };
+  const docRef = await addDoc(collection(firestore, COLLECTIONS.MATRIMONIAL_PROFILES), payload);
   return docRef.id;
 };
 

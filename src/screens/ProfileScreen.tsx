@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Platform, Linking } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -10,13 +10,212 @@ import { RootStackParamList } from '../types';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
 import Badge from '../components/common/Badge';
-import { Colors, Typography, Spacing, BorderRadius, Shadows, TouchTarget } from '../constants/theme';
+import FadeInView from '../components/common/FadeInView';
+import { Typography, Spacing, BorderRadius, Shadows } from '../constants/theme';
+import type { ThemeColors } from '../constants/theme';
+import { useTheme } from '../utils/theme';
 import { getFontFamily } from '../utils/fonts';
 import { formatDate } from '../utils/locale';
 
 type ProfileScreenNavigationProp = StackNavigationProp<RootStackParamList>;
 
+function makeStyles(colors: ThemeColors) {
+  return StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.primaryBackground },
+    fadeWrap: { flex: 1 },
+    headerGradient: {
+      paddingBottom: Spacing.xxxl,
+      borderBottomLeftRadius: BorderRadius.card * 2,
+      borderBottomRightRadius: BorderRadius.card * 2,
+      ...Shadows.subtle,
+    },
+    header: { alignItems: 'center', paddingHorizontal: Spacing.standard },
+    avatarContainer: { position: 'relative', marginBottom: Spacing.medium },
+    avatar: {
+      width: 120,
+      height: 120,
+      borderRadius: 60,
+      borderWidth: 4,
+      borderColor: colors.primaryBackground,
+      ...Shadows.medium,
+    },
+    avatarBorder: {
+      position: 'absolute',
+      top: -2,
+      left: -2,
+      right: -2,
+      bottom: -2,
+      borderRadius: 62,
+      borderWidth: 2,
+      borderColor: colors.tertiary,
+    },
+    avatarPlaceholder: {
+      width: 120,
+      height: 120,
+      borderRadius: 60,
+      backgroundColor: colors.tertiary,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: Spacing.medium,
+      borderWidth: 4,
+      borderColor: colors.primaryBackground,
+      ...Shadows.medium,
+    },
+    avatarText: {
+      color: colors.primaryBackground,
+      fontSize: 48,
+      fontFamily: getFontFamily(700),
+    },
+    name: {
+      ...Typography.headline3,
+      color: colors.primaryText,
+      fontFamily: getFontFamily(700),
+      marginBottom: Spacing.xxs,
+      textAlign: 'center',
+    },
+    email: {
+      ...Typography.body3,
+      color: colors.secondaryText,
+      marginBottom: Spacing.medium,
+      fontFamily: getFontFamily(400),
+      textAlign: 'center',
+    },
+    adminBadge: { marginTop: Spacing.xs, alignSelf: 'center' },
+    content: { padding: Spacing.standard, paddingTop: Spacing.large },
+    section: { marginBottom: Spacing.large },
+    sectionTitle: {
+      ...Typography.headline4,
+      color: colors.primaryText,
+      fontFamily: getFontFamily(600),
+      marginBottom: Spacing.medium,
+    },
+    bio: {
+      ...Typography.body3,
+      color: colors.primaryText,
+      marginBottom: Spacing.medium,
+      lineHeight: 24,
+      fontFamily: getFontFamily(400),
+    },
+    infoRow: { flexDirection: 'row', alignItems: 'center', marginBottom: Spacing.medium },
+    infoLabel: {
+      ...Typography.label2,
+      color: colors.secondaryText,
+      fontFamily: getFontFamily(600),
+      marginRight: Spacing.small,
+    },
+    infoValue: {
+      ...Typography.body3,
+      color: colors.primaryText,
+      fontFamily: getFontFamily(400),
+      flex: 1,
+    },
+    interests: { marginTop: Spacing.small },
+    interestsList: { flexDirection: 'row', flexWrap: 'wrap', marginTop: Spacing.xs },
+    interestBadge: { marginRight: Spacing.xs, marginBottom: Spacing.xs },
+    statsRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+      alignItems: 'center',
+      paddingVertical: Spacing.medium,
+    },
+    statItem: { flex: 1, alignItems: 'center' },
+    statValue: {
+      ...Typography.label2,
+      color: colors.secondaryText,
+      fontFamily: getFontFamily(500),
+      marginBottom: Spacing.xxs,
+    },
+    statLabel: {
+      ...Typography.body2,
+      color: colors.primaryText,
+      fontFamily: getFontFamily(600),
+    },
+    statDivider: {
+      width: 1,
+      height: 40,
+      backgroundColor: colors.alternate + '33',
+    },
+    actions: { marginTop: Spacing.large, marginBottom: Spacing.xxxl },
+    actionSpacer: { height: Spacing.small },
+    guestScroll: { flex: 1 },
+    guestContainer: { padding: Spacing.standard, paddingBottom: Spacing.xxxl },
+    guestTitle: {
+      ...Typography.headline3,
+      color: colors.primaryText,
+      fontFamily: getFontFamily(600),
+      marginBottom: Spacing.large,
+      textAlign: 'center',
+    },
+    aboutSection: {
+      marginBottom: Spacing.xl,
+      padding: Spacing.medium,
+      backgroundColor: colors.alternate + '18',
+      borderRadius: BorderRadius.card,
+    },
+    aboutHeading: {
+      ...Typography.headline4,
+      color: colors.primaryText,
+      fontFamily: getFontFamily(600),
+      marginBottom: Spacing.small,
+    },
+    aboutText: {
+      ...Typography.body3,
+      color: colors.primaryText,
+      fontFamily: getFontFamily(400),
+      marginBottom: Spacing.small,
+      lineHeight: 22,
+    },
+    aboutBullet: {
+      ...Typography.body3,
+      color: colors.primaryText,
+      fontFamily: getFontFamily(400),
+      marginBottom: Spacing.xs,
+      paddingLeft: Spacing.small,
+      lineHeight: 22,
+    },
+    createdByWrap: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+      flexWrap: 'wrap',
+      marginTop: Spacing.medium,
+    },
+    createdBy: {
+      ...Typography.label2,
+      color: colors.secondaryText,
+      fontFamily: getFontFamily(500),
+    },
+    createdByLink: {
+      ...Typography.label2,
+      color: colors.tertiary,
+      fontFamily: getFontFamily(600),
+      textDecorationLine: 'underline',
+    },
+    guestDivider: {
+      ...Typography.label2,
+      color: colors.secondaryText,
+      fontFamily: getFontFamily(500),
+      marginBottom: Spacing.medium,
+      textAlign: 'center',
+    },
+    guestText: {
+      ...Typography.body2,
+      color: colors.secondaryText,
+      fontFamily: getFontFamily(400),
+      marginBottom: Spacing.xl,
+      textAlign: 'center',
+    },
+    signInLink: { marginTop: Spacing.medium, paddingVertical: Spacing.small, alignItems: 'center' },
+    signInLinkText: {
+      ...Typography.body3,
+      color: colors.tertiary,
+      fontFamily: getFontFamily(600),
+    },
+  });
+}
+
 const ProfileScreen = () => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const dispatch = useAppDispatch();
   const navigation = useNavigation<ProfileScreenNavigationProp>();
   const { user } = useAppSelector((state) => state.auth);
@@ -31,11 +230,22 @@ const ProfileScreen = () => {
   };
 
   const handleSettings = () => {
-    navigation.navigate('Settings');
+    const root = navigation.getParent();
+    if (root) {
+      (root as any).navigate('Settings');
+    } else {
+      navigation.navigate('Settings');
+    }
   };
 
   const handleRequests = () => {
-    navigation.navigate('Requests' as any);
+    // Requests is a stack screen; we're inside the Main tab, so use root stack
+    const root = navigation.getParent();
+    if (root) {
+      (root as any).navigate('Requests', { openMyRequests: true });
+    } else {
+      navigation.navigate('Requests' as any, { openMyRequests: true });
+    }
   };
 
   // Guest: About the app + login options
@@ -89,10 +299,11 @@ const ProfileScreen = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Profile Header with Gradient */}
+      <FadeInView style={styles.fadeWrap}>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {/* Profile Header with Gradient */}
         <LinearGradient
-          colors={[Colors.tertiary + '20', Colors.primaryBackground]}
+          colors={[colors.tertiary + '20', colors.primaryBackground]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={[styles.headerGradient, { paddingTop: Platform.OS === 'ios' ? insets.top + Spacing.large : Spacing.xxl }]}
@@ -113,12 +324,12 @@ const ProfileScreen = () => {
             <Text style={styles.name}>{user.displayName || 'User'}</Text>
             <Text style={styles.email}>{user.email}</Text>
             {user.role === 'admin' && (
-              <Badge label="Admin" color={Colors.warning} style={styles.adminBadge} />
+              <Badge label="Admin" color={colors.warning} style={styles.adminBadge} />
             )}
           </View>
         </LinearGradient>
 
-        <View style={styles.content}>
+          <View style={styles.content}>
           {/* Profile Info */}
           {user.profile && (
             <Card style={styles.section} padding={Spacing.medium}>
@@ -138,7 +349,7 @@ const ProfileScreen = () => {
                       <Badge
                         key={index}
                         label={interest}
-                        color={Colors.tertiary}
+                        color={colors.tertiary}
                         uppercase={false}
                         style={styles.interestBadge}
                       />
@@ -186,248 +397,11 @@ const ProfileScreen = () => {
             />
           </View>
         </View>
-      </ScrollView>
+        </ScrollView>
+      </FadeInView>
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.primaryBackground,
-  },
-  headerGradient: {
-    paddingBottom: Spacing.xxxl,
-    borderBottomLeftRadius: BorderRadius.card * 2,
-    borderBottomRightRadius: BorderRadius.card * 2,
-    ...Shadows.subtle,
-  },
-  header: {
-    alignItems: 'center',
-    paddingHorizontal: Spacing.standard,
-  },
-  avatarContainer: {
-    position: 'relative',
-    marginBottom: Spacing.medium,
-  },
-  avatar: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    borderWidth: 4,
-    borderColor: Colors.primaryBackground,
-    ...Shadows.medium,
-  },
-  avatarBorder: {
-    position: 'absolute',
-    top: -2,
-    left: -2,
-    right: -2,
-    bottom: -2,
-    borderRadius: 62,
-    borderWidth: 2,
-    borderColor: Colors.tertiary,
-  },
-  avatarPlaceholder: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: Colors.tertiary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: Spacing.medium,
-    borderWidth: 4,
-    borderColor: Colors.primaryBackground,
-    ...Shadows.medium,
-  },
-  avatarText: {
-    color: Colors.primaryBackground,
-    fontSize: 48,
-    fontFamily: getFontFamily(700),
-  },
-  name: {
-    ...Typography.headline3,
-    color: Colors.primaryText,
-    fontFamily: getFontFamily(700),
-    marginBottom: Spacing.xxs,
-    textAlign: 'center',
-  },
-  email: {
-    ...Typography.body3,
-    color: Colors.secondaryText,
-    marginBottom: Spacing.medium,
-    fontFamily: getFontFamily(400),
-    textAlign: 'center',
-  },
-  adminBadge: {
-    marginTop: Spacing.xs,
-    alignSelf: 'center',
-  },
-  content: {
-    padding: Spacing.standard,
-    paddingTop: Spacing.large,
-  },
-  section: {
-    marginBottom: Spacing.large,
-  },
-  sectionTitle: {
-    ...Typography.headline4,
-    color: Colors.primaryText,
-    fontFamily: getFontFamily(600),
-    marginBottom: Spacing.medium,
-  },
-  bio: {
-    ...Typography.body3,
-    color: Colors.primaryText,
-    marginBottom: Spacing.medium,
-    lineHeight: 24,
-    fontFamily: getFontFamily(400),
-  },
-  infoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: Spacing.medium,
-  },
-  infoLabel: {
-    ...Typography.label2,
-    color: Colors.secondaryText,
-    fontFamily: getFontFamily(600),
-    marginRight: Spacing.small,
-  },
-  infoValue: {
-    ...Typography.body3,
-    color: Colors.primaryText,
-    fontFamily: getFontFamily(400),
-    flex: 1,
-  },
-  interests: {
-    marginTop: Spacing.small,
-  },
-  interestsList: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginTop: Spacing.xs,
-  },
-  interestBadge: {
-    marginRight: Spacing.xs,
-    marginBottom: Spacing.xs,
-  },
-  statsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    paddingVertical: Spacing.medium,
-  },
-  statItem: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  statValue: {
-    ...Typography.label2,
-    color: Colors.secondaryText,
-    fontFamily: getFontFamily(500),
-    marginBottom: Spacing.xxs,
-  },
-  statLabel: {
-    ...Typography.body2,
-    color: Colors.primaryText,
-    fontFamily: getFontFamily(600),
-  },
-  statDivider: {
-    width: 1,
-    height: 40,
-    backgroundColor: Colors.alternate + '33',
-  },
-  actions: {
-    marginTop: Spacing.large,
-    marginBottom: Spacing.xxxl,
-  },
-  actionSpacer: {
-    height: Spacing.small,
-  },
-  guestScroll: {
-    flex: 1,
-  },
-  guestContainer: {
-    padding: Spacing.standard,
-    paddingBottom: Spacing.xxxl,
-  },
-  guestTitle: {
-    ...Typography.headline3,
-    color: Colors.primaryText,
-    fontFamily: getFontFamily(600),
-    marginBottom: Spacing.large,
-    textAlign: 'center',
-  },
-  aboutSection: {
-    marginBottom: Spacing.xl,
-    padding: Spacing.medium,
-    backgroundColor: Colors.alternate + '18',
-    borderRadius: BorderRadius.card,
-  },
-  aboutHeading: {
-    ...Typography.headline4,
-    color: Colors.primaryText,
-    fontFamily: getFontFamily(600),
-    marginBottom: Spacing.small,
-  },
-  aboutText: {
-    ...Typography.body3,
-    color: Colors.primaryText,
-    fontFamily: getFontFamily(400),
-    marginBottom: Spacing.small,
-    lineHeight: 22,
-  },
-  aboutBullet: {
-    ...Typography.body3,
-    color: Colors.primaryText,
-    fontFamily: getFontFamily(400),
-    marginBottom: Spacing.xs,
-    paddingLeft: Spacing.small,
-    lineHeight: 22,
-  },
-  createdByWrap: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    flexWrap: 'wrap',
-    marginTop: Spacing.medium,
-  },
-  createdBy: {
-    ...Typography.label2,
-    color: Colors.secondaryText,
-    fontFamily: getFontFamily(500),
-  },
-  createdByLink: {
-    ...Typography.label2,
-    color: Colors.tertiary,
-    fontFamily: getFontFamily(600),
-    textDecorationLine: 'underline',
-  },
-  guestDivider: {
-    ...Typography.label2,
-    color: Colors.secondaryText,
-    fontFamily: getFontFamily(500),
-    marginBottom: Spacing.medium,
-    textAlign: 'center',
-  },
-  guestText: {
-    ...Typography.body2,
-    color: Colors.secondaryText,
-    fontFamily: getFontFamily(400),
-    marginBottom: Spacing.xl,
-    textAlign: 'center',
-  },
-  signInLink: {
-    marginTop: Spacing.medium,
-    paddingVertical: Spacing.small,
-    alignItems: 'center',
-  },
-  signInLinkText: {
-    ...Typography.body3,
-    color: Colors.tertiary,
-    fontFamily: getFontFamily(600),
-  },
-});
 
 export default ProfileScreen;
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -20,14 +20,17 @@ import * as ImagePicker from 'expo-image-picker';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { fetchRequests, createRequest } from '../store/slices/requestsSlice';
 import { uploadImage } from '../services/firebase/storage';
-import { Request } from '../types';
-import { useNavigation } from '@react-navigation/native';
+import { Request, MatrimonialProfile } from '../types';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import * as firestoreService from '../services/firebase/firestore';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
 import Card from '../components/common/Card';
 import Badge from '../components/common/Badge';
 import Button from '../components/common/Button';
-import { Colors, Typography, Spacing, BorderRadius, Shadows, TouchTarget } from '../constants/theme';
+import { Typography, Spacing, BorderRadius, Shadows, TouchTarget } from '../constants/theme';
+import type { ThemeColors } from '../constants/theme';
+import { useTheme } from '../utils/theme';
 import { getFontFamily } from '../utils/fonts';
 import { formatDateShort } from '../utils/locale';
 
@@ -45,17 +48,33 @@ const PlusIcon = ({ color, size }: { color: string; size: number }) => (
 );
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+type RequestsRouteProp = RouteProp<RootStackParamList, 'Requests'>;
 
 const RequestsScreen = () => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const dispatch = useAppDispatch();
   const navigation = useNavigation<NavigationProp>();
+  const route = useRoute<RequestsRouteProp>();
   const insets = useSafeAreaInsets();
   const { requests, loading } = useAppSelector((state) => state.requests);
   const { user } = useAppSelector((state) => state.auth);
-  const [filter, setFilter] = useState<'all' | 'condolence' | 'celebration' | 'match'>('all');
+  const [filter, setFilter] = useState<'all' | 'mine' | 'condolence' | 'celebration' | 'match'>(
+    route.params?.openMyRequests ? 'mine' : 'all'
+  );
   
   const isAdmin = user?.role === 'admin';
   const pendingCount = requests.filter((r) => r.status === 'pending').length;
+  const [pendingProfiles, setPendingProfiles] = useState<MatrimonialProfile[]>([]);
+  const [loadingProfiles, setLoadingProfiles] = useState(true);
+
+  // For "Your requests" show only current user's submissions with their status (pending/approved/rejected)
+  const displayRequests =
+    filter === 'mine' && user
+      ? requests.filter((r) => r.userId === user.id)
+      : filter === 'all'
+        ? requests
+        : requests.filter((r) => r.type === filter);
   
   // Create request modal state
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -70,9 +89,37 @@ const RequestsScreen = () => {
     loadRequests();
   }, [filter]);
 
+  // When navigated with openMyRequests, switch to Your requests
+  useEffect(() => {
+    if (route.params?.openMyRequests && filter !== 'mine') {
+      setFilter('mine');
+    }
+  }, [route.params?.openMyRequests]);
+
+  // Admin: fetch pending matrimonial profiles count
+  useEffect(() => {
+    if (!isAdmin) return;
+    let cancelled = false;
+    (async () => {
+      setLoadingProfiles(true);
+      try {
+        const list = await firestoreService.getMatrimonialProfilesForAdmin();
+        if (!cancelled) setPendingProfiles(list);
+      } catch {
+        if (!cancelled) setPendingProfiles([]);
+      } finally {
+        if (!cancelled) setLoadingProfiles(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [isAdmin]);
+
   const loadRequests = async () => {
     try {
-      const type = filter === 'all' ? undefined : filter;
+      // Fetch all when "Your requests" or "All" so we have data to filter client-side for "mine"
+      const type = filter === 'mine' || filter === 'all' ? undefined : filter;
       await dispatch(fetchRequests(type)).unwrap();
     } catch (err) {
       console.error('Error loading requests:', err);
@@ -210,13 +257,13 @@ const RequestsScreen = () => {
               item.type === 'match' ? '💑 Match' : '🎉 Celebration'
             }`}
             color={
-              item.type === 'condolence' ? Colors.alternate :
-              item.type === 'match' ? Colors.primary : Colors.tertiary
+              item.type === 'condolence' ? colors.alternate :
+              item.type === 'match' ? colors.primary : colors.tertiary
             }
           />
           <Badge
             label={item.status}
-            color={item.status === 'approved' ? Colors.success : item.status === 'rejected' ? Colors.error : Colors.warning}
+            color={item.status === 'approved' ? colors.success : item.status === 'rejected' ? colors.error : colors.warning}
           />
         </View>
         <Text style={styles.requestTitle}>{item.title}</Text>
@@ -228,19 +275,59 @@ const RequestsScreen = () => {
     </TouchableOpacity>
   );
 
-  return (
-    <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
-      {/* Admin Pending Requests Badge */}
-      {isAdmin && pendingCount > 0 && (
-        <View style={[styles.pendingBadgeContainer, { paddingTop: Platform.OS === 'ios' ? insets.top + Spacing.xs : Spacing.small }]}>
-          <Card style={styles.pendingBadge} padding={Spacing.small}>
-            <Text style={styles.pendingBadgeText}>
-              ⚠️ {pendingCount} pending request{pendingCount > 1 ? 's' : ''} awaiting your approval
+  const pendingProfileCount = pendingProfiles.length;
+
+  const listHeader = (
+    <View style={[styles.headerWrap, { paddingTop: Platform.OS === 'ios' ? insets.top + Spacing.xs : Spacing.small }]}>
+      {/* Admin Review section – only for admins */}
+      {isAdmin && (
+        <View style={styles.adminSection}>
+          <Text style={[styles.adminTitle, { color: colors.primaryText }]}>Admin Review</Text>
+          <Text style={[styles.adminSubtitle, { color: colors.secondaryText }]}>
+            Review and approve pending items
+          </Text>
+          <Card style={styles.adminCard} padding={Spacing.medium}>
+            <Text style={[styles.adminCardTitle, { color: colors.primaryText }]}>Pending requests</Text>
+            <Text style={[styles.adminCount, { color: colors.secondaryText }]}>
+              {pendingCount} request{pendingCount !== 1 ? 's' : ''} awaiting approval
             </Text>
+            <Button
+              title="Review requests"
+              onPress={() => navigation.navigate('AdminPendingRequests' as any)}
+              variant="secondary"
+              disabled={pendingCount === 0}
+            />
+          </Card>
+          <Card style={styles.adminCard} padding={Spacing.medium}>
+            <Text style={[styles.adminCardTitle, { color: colors.primaryText }]}>Pending matrimonial profiles</Text>
+            {loadingProfiles ? (
+              <ActivityIndicator size="small" color={colors.tertiary} style={styles.adminLoader} />
+            ) : (
+              <Text style={[styles.adminCount, { color: colors.secondaryText }]}>
+                {pendingProfileCount} profile{pendingProfileCount !== 1 ? 's' : ''} awaiting approval
+              </Text>
+            )}
+            <Button
+              title="Review profiles"
+              onPress={() => navigation.navigate('AdminPendingMatrimonial' as any)}
+              variant="secondary"
+              disabled={loadingProfiles || pendingProfileCount === 0}
+            />
+          </Card>
+          <Card style={styles.adminCard} padding={Spacing.medium}>
+            <Text style={[styles.adminCardTitle, { color: colors.primaryText }]}>Your requests</Text>
+            <Text style={[styles.adminCount, { color: colors.secondaryText }]}>
+              View progress of requests you submitted
+            </Text>
+            <Button
+              title="View your requests"
+              onPress={() => setFilter('mine')}
+              variant="secondary"
+            />
           </Card>
         </View>
       )}
-      
+
       {/* Filter Tabs */}
       <View style={styles.filterBar}>
         <ScrollView
@@ -249,6 +336,14 @@ const RequestsScreen = () => {
           style={styles.filterScroll}
           contentContainerStyle={styles.filterRow}
         >
+          <TouchableOpacity
+            style={[styles.filterButton, filter === 'mine' && styles.filterButtonActive]}
+            onPress={() => setFilter('mine')}
+          >
+            <Text style={[styles.filterText, filter === 'mine' && styles.filterTextActive]}>
+              Your requests
+            </Text>
+          </TouchableOpacity>
           <TouchableOpacity
             style={[styles.filterButton, filter === 'all' && styles.filterButtonActive]}
             onPress={() => setFilter('all')}
@@ -289,20 +384,31 @@ const RequestsScreen = () => {
           </TouchableOpacity>
         </ScrollView>
       </View>
+    </View>
+  );
 
+  return (
+    <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
       {loading && requests.length === 0 ? (
         <View style={styles.centerContainer}>
-          <ActivityIndicator size="large" color={Colors.tertiary} />
+          <ActivityIndicator size="large" color={colors.tertiary} />
         </View>
       ) : (
         <FlatList
-          data={requests}
+          data={displayRequests}
           renderItem={renderRequest}
           keyExtractor={(item) => item.id}
+          ListHeaderComponent={listHeader}
           contentContainerStyle={styles.listContent}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>No requests yet</Text>
+              <Text style={styles.emptyText}>
+                {filter === 'mine'
+                  ? user
+                    ? "You haven't submitted any requests yet"
+                    : 'Sign in to see your requests'
+                  : 'No requests yet'}
+              </Text>
             </View>
           }
         />
@@ -403,7 +509,7 @@ const RequestsScreen = () => {
               <TextInput
                 style={styles.titleInput}
                 placeholder="Enter title"
-                placeholderTextColor={Colors.secondaryText}
+                placeholderTextColor={colors.secondaryText}
                 value={requestTitle}
                 onChangeText={setRequestTitle}
                 multiline
@@ -415,7 +521,7 @@ const RequestsScreen = () => {
               <TextInput
                 style={styles.textArea}
                 placeholder="Enter description"
-                placeholderTextColor={Colors.secondaryText}
+                placeholderTextColor={colors.secondaryText}
                 value={requestDescription}
                 onChangeText={setRequestDescription}
                 multiline
@@ -447,7 +553,7 @@ const RequestsScreen = () => {
               
               {(isUploadingImage || isCreating) && (
                 <View style={styles.uploadStatus}>
-                  <ActivityIndicator size="small" color={Colors.tertiary} />
+                  <ActivityIndicator size="small" color={colors.tertiary} />
                   <Text style={styles.uploadStatusText}>
                     {isUploadingImage ? 'Uploading image...' : 'Submitting request...'}
                   </Text>
@@ -471,298 +577,279 @@ const RequestsScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.primaryBackground },
-  filterBar: {
-    backgroundColor: Colors.primaryBackground,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.alternate + '33',
-  },
-  filterScroll: {
-    paddingHorizontal: Spacing.small,
-  },
-  filterRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: Spacing.small,
-  },
-  filterButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    minHeight: 32,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: BorderRadius.pill || BorderRadius.button,
-    marginRight: Spacing.xs,
-    backgroundColor: Colors.secondaryBackground,
-    borderWidth: 1,
-    borderColor: Colors.alternate + '33',
-  },
-  filterButtonActive: {
-    backgroundColor: Colors.tertiary + '1A', // ~10% tint
-    borderColor: Colors.tertiary,
-  },
-  filterText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: Colors.secondaryText,
-    fontFamily: getFontFamily(600),
-    textAlign: 'center',
-    lineHeight: 16,
-  },
-  filterTextActive: {
-    color: Colors.tertiary,
-    fontWeight: '700',
-  },
-  listContent: {
-    padding: Spacing.small,
-    paddingTop: Spacing.medium,
-  },
-  requestCard: {
-    borderRadius: BorderRadius.card,
-    marginBottom: Spacing.small,
-  },
-  requestHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: Spacing.small,
-  },
-  requestType: {
-    ...Typography.label3,
-    color: Colors.tertiary,
-    fontFamily: getFontFamily(600),
-  },
-  requestStatus: {
-    ...Typography.label4,
-    color: Colors.secondaryText,
-    textTransform: 'capitalize',
-  },
-  requestTitle: {
-    ...Typography.headline4,
-    color: Colors.primaryText,
-    fontFamily: getFontFamily(600),
-    marginBottom: Spacing.xxs,
-  },
-  requestDescription: {
-    ...Typography.body3,
-    color: Colors.primaryText,
-    marginBottom: Spacing.small,
-    fontFamily: getFontFamily(400),
-  },
-  requestDate: {
-    ...Typography.label5,
-    color: Colors.secondaryText,
-  },
-  centerContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  emptyContainer: {
-    padding: Spacing.xxl,
-    alignItems: 'center',
-  },
-  emptyText: {
-    ...Typography.body2,
-    color: Colors.secondaryText,
-    fontFamily: getFontFamily(400),
-  },
-  // FAB styles
-  fab: {
-    position: 'absolute',
-    right: Spacing.standard,
-    bottom: Spacing.standard,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: Colors.tertiary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    ...Shadows.medium,
-    elevation: 6,
-  },
-  // Modal styles
-  modalContainer: {
-    flex: 1,
-    backgroundColor: Colors.primaryBackground,
-  },
-  modalContent: {
-    flex: 1,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: Spacing.standard,
-    paddingVertical: Spacing.medium,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.alternate + '33',
-  },
-  modalCancel: {
-    ...Typography.label1,
-    color: Colors.tertiary,
-    fontFamily: getFontFamily(500),
-  },
-  modalTitle: {
-    ...Typography.headline4,
-    color: Colors.primaryText,
-    fontFamily: getFontFamily(600),
-  },
-  modalBody: {
-    flex: 1,
-    padding: Spacing.standard,
-  },
-  inputLabel: {
-    ...Typography.label2,
-    color: Colors.primaryText,
-    fontFamily: getFontFamily(600),
-    marginBottom: Spacing.xs,
-    marginTop: Spacing.medium,
-  },
-  input: {
-    ...Typography.body3,
-    height: TouchTarget.recommended,
-    borderWidth: 1.5,
-    borderColor: Colors.alternate + '33',
-    borderRadius: BorderRadius.button,
-    paddingHorizontal: Spacing.medium,
-    backgroundColor: Colors.secondaryBackground,
-    color: Colors.primaryText,
-    fontFamily: getFontFamily(400),
-  },
-  titleInput: {
-    ...Typography.body3,
-    minHeight: 56,
-    paddingVertical: Spacing.medium,
-    paddingHorizontal: Spacing.medium,
-    borderWidth: 1.5,
-    borderColor: Colors.alternate + '33',
-    borderRadius: BorderRadius.button,
-    backgroundColor: Colors.secondaryBackground,
-    color: Colors.primaryText,
-    fontFamily: getFontFamily(400),
-    lineHeight: Typography.body3.fontSize * 1.4,
-    textAlignVertical: 'top',
-  },
-  textArea: {
-    ...Typography.body3,
-    minHeight: 120,
-    borderWidth: 1.5,
-    borderColor: Colors.alternate + '33',
-    borderRadius: BorderRadius.button,
-    paddingHorizontal: Spacing.medium,
-    paddingVertical: Spacing.small,
-    backgroundColor: Colors.secondaryBackground,
-    color: Colors.primaryText,
-    fontFamily: getFontFamily(400),
-  },
-  typeSelector: {
-    flexDirection: 'row',
-    gap: Spacing.xs,
-    marginBottom: Spacing.small,
-  },
-  typeButton: {
-    flex: 1,
-    minWidth: 0,
-    paddingVertical: Spacing.xs,
-    paddingHorizontal: Spacing.xs,
-    borderRadius: BorderRadius.pill || BorderRadius.button,
-    borderWidth: 1,
-    borderColor: Colors.alternate + '33',
-    backgroundColor: Colors.secondaryBackground,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  typeButtonActive: {
-    borderColor: Colors.tertiary,
-    backgroundColor: Colors.tertiary,
-  },
-  typeButtonText: {
-    ...Typography.label2,
-    color: Colors.secondaryText,
-    fontFamily: getFontFamily(500),
-    fontSize: 12,
-    textAlign: 'center',
-  },
-  typeButtonTextActive: {
-    color: '#FFFFFF',
-    fontFamily: getFontFamily(600),
-  },
-  imagePickerButton: {
-    height: TouchTarget.recommended,
-    borderWidth: 2,
-    borderColor: Colors.alternate + '66',
-    borderStyle: 'dashed',
-    borderRadius: BorderRadius.button,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: Colors.secondaryBackground,
-    marginBottom: Spacing.medium,
-  },
-  imagePickerText: {
-    ...Typography.label1,
-    color: Colors.secondaryText,
-    fontFamily: getFontFamily(500),
-  },
-  imagePreviewContainer: {
-    marginBottom: Spacing.medium,
-    position: 'relative',
-  },
-  imagePreview: {
-    width: '100%',
-    height: 200,
-    borderRadius: BorderRadius.medium,
-    resizeMode: 'cover',
-  },
-  removeImageButton: {
-    position: 'absolute',
-    top: Spacing.xs,
-    right: Spacing.xs,
-    backgroundColor: Colors.error + 'E6',
-    paddingHorizontal: Spacing.small,
-    paddingVertical: Spacing.xxs,
-    borderRadius: BorderRadius.small,
-  },
-  removeImageText: {
-    ...Typography.label4,
-    color: Colors.primaryBackground,
-    fontFamily: getFontFamily(600),
-  },
-  uploadStatus: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: Spacing.small,
-    marginBottom: Spacing.medium,
-  },
-  uploadStatusText: {
-    ...Typography.label3,
-    color: Colors.secondaryText,
-    marginLeft: Spacing.xs,
-    fontFamily: getFontFamily(500),
-  },
-  modalActions: {
-    marginTop: Spacing.large,
-    marginBottom: Spacing.xxl,
-  },
-  // Pending badge for admins
-  pendingBadgeContainer: {
-    paddingHorizontal: Spacing.standard,
-    paddingBottom: Spacing.xs,
-  },
-  pendingBadge: {
-    backgroundColor: Colors.warning + '20',
-    borderWidth: 1,
-    borderColor: Colors.warning,
-    borderRadius: BorderRadius.medium,
-  },
-  pendingBadgeText: {
-    ...Typography.label1,
-    color: Colors.warning,
-    fontFamily: getFontFamily(600),
-    textAlign: 'center',
-  },
-});
+function makeStyles(colors: ThemeColors) {
+  return StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.primaryBackground },
+    filterBar: {
+      backgroundColor: colors.primaryBackground,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.alternate + '33',
+    },
+    filterScroll: { paddingHorizontal: Spacing.small },
+    filterRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: Spacing.small,
+    },
+    filterButton: {
+      paddingVertical: 8,
+      paddingHorizontal: 12,
+      minHeight: 32,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderRadius: BorderRadius.pill || BorderRadius.button,
+      marginRight: Spacing.xs,
+      backgroundColor: colors.secondaryBackground,
+      borderWidth: 1,
+      borderColor: colors.alternate + '33',
+    },
+    filterButtonActive: {
+      backgroundColor: colors.tertiary + '1A',
+      borderColor: colors.tertiary,
+    },
+    filterText: {
+      fontSize: 13,
+      fontWeight: '600',
+      color: colors.secondaryText,
+      fontFamily: getFontFamily(600),
+      textAlign: 'center',
+      lineHeight: 16,
+    },
+    filterTextActive: { color: colors.tertiary, fontWeight: '700' },
+    listContent: { padding: Spacing.small, paddingTop: Spacing.medium },
+    requestCard: { borderRadius: BorderRadius.card, marginBottom: Spacing.small },
+    requestHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginBottom: Spacing.small,
+    },
+    requestType: {
+      ...Typography.label3,
+      color: colors.tertiary,
+      fontFamily: getFontFamily(600),
+    },
+    requestStatus: {
+      ...Typography.label4,
+      color: colors.secondaryText,
+      textTransform: 'capitalize',
+    },
+    requestTitle: {
+      ...Typography.headline4,
+      color: colors.primaryText,
+      fontFamily: getFontFamily(600),
+      marginBottom: Spacing.xxs,
+    },
+    requestDescription: {
+      ...Typography.body3,
+      color: colors.primaryText,
+      marginBottom: Spacing.small,
+      fontFamily: getFontFamily(400),
+    },
+    requestDate: { ...Typography.label5, color: colors.secondaryText },
+    centerContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    emptyContainer: { padding: Spacing.xxl, alignItems: 'center' },
+    emptyText: {
+      ...Typography.body2,
+      color: colors.secondaryText,
+      fontFamily: getFontFamily(400),
+    },
+    fab: {
+      position: 'absolute',
+      right: Spacing.standard,
+      bottom: Spacing.standard,
+      width: 56,
+      height: 56,
+      borderRadius: 28,
+      backgroundColor: colors.tertiary,
+      justifyContent: 'center',
+      alignItems: 'center',
+      ...Shadows.medium,
+      elevation: 6,
+    },
+    modalContainer: { flex: 1, backgroundColor: colors.primaryBackground },
+    modalContent: { flex: 1 },
+    modalHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: Spacing.standard,
+      paddingVertical: Spacing.medium,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.alternate + '33',
+    },
+    modalCancel: {
+      ...Typography.label1,
+      color: colors.tertiary,
+      fontFamily: getFontFamily(500),
+    },
+    modalTitle: {
+      ...Typography.headline4,
+      color: colors.primaryText,
+      fontFamily: getFontFamily(600),
+    },
+    modalBody: { flex: 1, padding: Spacing.standard },
+    inputLabel: {
+      ...Typography.label2,
+      color: colors.primaryText,
+      fontFamily: getFontFamily(600),
+      marginBottom: Spacing.xs,
+      marginTop: Spacing.medium,
+    },
+    input: {
+      ...Typography.body3,
+      height: TouchTarget.recommended,
+      borderWidth: 1.5,
+      borderColor: colors.alternate + '33',
+      borderRadius: BorderRadius.button,
+      paddingHorizontal: Spacing.medium,
+      backgroundColor: colors.secondaryBackground,
+      color: colors.primaryText,
+      fontFamily: getFontFamily(400),
+    },
+    titleInput: {
+      ...Typography.body3,
+      minHeight: 56,
+      paddingVertical: Spacing.medium,
+      paddingHorizontal: Spacing.medium,
+      borderWidth: 1.5,
+      borderColor: colors.alternate + '33',
+      borderRadius: BorderRadius.button,
+      backgroundColor: colors.secondaryBackground,
+      color: colors.primaryText,
+      fontFamily: getFontFamily(400),
+      lineHeight: Typography.body3.fontSize * 1.4,
+      textAlignVertical: 'top',
+    },
+    textArea: {
+      ...Typography.body3,
+      minHeight: 120,
+      borderWidth: 1.5,
+      borderColor: colors.alternate + '33',
+      borderRadius: BorderRadius.button,
+      paddingHorizontal: Spacing.medium,
+      paddingVertical: Spacing.small,
+      backgroundColor: colors.secondaryBackground,
+      color: colors.primaryText,
+      fontFamily: getFontFamily(400),
+    },
+    typeSelector: {
+      flexDirection: 'row',
+      gap: Spacing.xs,
+      marginBottom: Spacing.small,
+    },
+    typeButton: {
+      flex: 1,
+      minWidth: 0,
+      paddingVertical: Spacing.xs,
+      paddingHorizontal: Spacing.xs,
+      borderRadius: BorderRadius.pill || BorderRadius.button,
+      borderWidth: 1,
+      borderColor: colors.alternate + '33',
+      backgroundColor: colors.secondaryBackground,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    typeButtonActive: {
+      borderColor: colors.tertiary,
+      backgroundColor: colors.tertiary,
+    },
+    typeButtonText: {
+      ...Typography.label2,
+      color: colors.secondaryText,
+      fontFamily: getFontFamily(500),
+      fontSize: 12,
+      textAlign: 'center',
+    },
+    typeButtonTextActive: {
+      color: '#FFFFFF',
+      fontFamily: getFontFamily(600),
+    },
+    imagePickerButton: {
+      height: TouchTarget.recommended,
+      borderWidth: 2,
+      borderColor: colors.alternate + '66',
+      borderStyle: 'dashed',
+      borderRadius: BorderRadius.button,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: colors.secondaryBackground,
+      marginBottom: Spacing.medium,
+    },
+    imagePickerText: {
+      ...Typography.label1,
+      color: colors.secondaryText,
+      fontFamily: getFontFamily(500),
+    },
+    imagePreviewContainer: { marginBottom: Spacing.medium, position: 'relative' },
+    imagePreview: {
+      width: '100%',
+      height: 200,
+      borderRadius: BorderRadius.medium,
+      resizeMode: 'cover',
+    },
+    removeImageButton: {
+      position: 'absolute',
+      top: Spacing.xs,
+      right: Spacing.xs,
+      backgroundColor: colors.error + 'E6',
+      paddingHorizontal: Spacing.small,
+      paddingVertical: Spacing.xxs,
+      borderRadius: BorderRadius.small,
+    },
+    removeImageText: {
+      ...Typography.label4,
+      color: colors.primaryBackground,
+      fontFamily: getFontFamily(600),
+    },
+    uploadStatus: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: Spacing.small,
+      marginBottom: Spacing.medium,
+    },
+    uploadStatusText: {
+      ...Typography.label3,
+      color: colors.secondaryText,
+      marginLeft: Spacing.xs,
+      fontFamily: getFontFamily(500),
+    },
+    modalActions: { marginTop: Spacing.large, marginBottom: Spacing.xxl },
+    headerWrap: {
+      paddingHorizontal: Spacing.standard,
+      paddingBottom: Spacing.small,
+    },
+    adminSection: {
+      marginBottom: Spacing.large,
+    },
+    adminTitle: {
+      ...Typography.headline3,
+      fontFamily: getFontFamily(700),
+      marginBottom: Spacing.xxs,
+    },
+    adminSubtitle: {
+      ...Typography.body3,
+      marginBottom: Spacing.medium,
+    },
+    adminCard: {
+      marginBottom: Spacing.medium,
+    },
+    adminCardTitle: {
+      ...Typography.headline4,
+      fontFamily: getFontFamily(600),
+      marginBottom: Spacing.xs,
+    },
+    adminCount: {
+      ...Typography.body3,
+      marginBottom: Spacing.medium,
+    },
+    adminLoader: { marginVertical: Spacing.small },
+  });
+}
 
 export default RequestsScreen;
 

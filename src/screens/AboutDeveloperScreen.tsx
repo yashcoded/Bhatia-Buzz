@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors, Typography, Spacing } from '../constants/theme';
+import { useTheme } from '../utils/theme';
 import { getFontFamily } from '../utils/fonts';
 import { appConfig } from '../constants/config';
 import Card from '../components/common/Card';
@@ -24,6 +25,7 @@ const DOCS_LIST = [
 ];
 
 const AboutDeveloperScreen = () => {
+  const { colors } = useTheme();
   const insets = useSafeAreaInsets();
 
   const openDocsUrl = () => {
@@ -32,7 +34,7 @@ const AboutDeveloperScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.primaryBackground }]} edges={['bottom', 'left', 'right']}>
       <ScrollView
         contentContainerStyle={[
           styles.content,

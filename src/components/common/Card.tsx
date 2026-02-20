@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, ViewStyle } from 'react-native';
-import { Colors, BorderRadius, Spacing, Shadows } from '../../constants/theme';
+import { BorderRadius, Spacing, Shadows } from '../../constants/theme';
+import { useTheme } from '../../utils/theme';
 
 interface CardProps {
   children: React.ReactNode;
@@ -13,26 +14,28 @@ interface CardProps {
 const Card: React.FC<CardProps> = ({
   children,
   variant = 'standard',
-  highlightColor = Colors.tertiary,
+  highlightColor,
   style,
   padding = Spacing.small,
 }) => {
+  const { colors } = useTheme();
+  const accent = highlightColor ?? colors.tertiary;
   const getCardStyle = () => {
     switch (variant) {
       case 'highlighted':
         return {
-          backgroundColor: highlightColor + '14', // 0.08 opacity in hex
-          borderColor: highlightColor + '33', // 0.2 opacity
+          backgroundColor: accent + '14',
+          borderColor: accent + '33',
         };
       case 'premium':
         return {
-          backgroundColor: Colors.tertiary,
+          backgroundColor: colors.tertiary,
           ...Shadows.dramatic,
         };
       default:
         return {
-          backgroundColor: Colors.primaryBackground,
-          borderColor: Colors.alternate,
+          backgroundColor: colors.primaryBackground,
+          borderColor: colors.alternate,
         };
     }
   };

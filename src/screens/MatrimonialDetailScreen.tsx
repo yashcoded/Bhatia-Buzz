@@ -1,264 +1,188 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
-import { RouteProp, useRoute } from '@react-navigation/native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, TextInput, Alert, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
 import { RootStackParamList } from '../types';
-import { useAppSelector } from '../store/hooks';
-import { formatHeightForDisplay } from '../utils/height';
+import { MatrimonialProfile } from '../types';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { updateMatrimonialProfileStatus } from '../store/slices/matrimonialSlice';
+import { useTheme } from '../utils/theme';
+import MatrimonialProfileDetailContent from '../components/matrimonial/MatrimonialProfileDetailContent';
+import Button from '../components/common/Button';
+import ReportModal from '../components/common/ReportModal';
+import * as firestoreService from '../services/firebase/firestore';
+import { Spacing } from '../constants/theme';
 
 type MatrimonialDetailRouteProp = RouteProp<RootStackParamList, 'MatrimonialDetail'>;
 
 const MatrimonialDetailScreen = () => {
+  const { colors } = useTheme();
+  const navigation = useNavigation();
+  const dispatch = useAppDispatch();
   const route = useRoute<MatrimonialDetailRouteProp>();
   const { profileId } = route.params;
   const { profiles } = useAppSelector((state) => state.matrimonial);
-  const profile = profiles.find((p) => p.id === profileId);
+  const { user } = useAppSelector((state) => state.auth);
+  const [fetchedProfile, setFetchedProfile] = useState<MatrimonialProfile | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [adminNotes, setAdminNotes] = useState('');
+  const [updating, setUpdating] = useState(false);
+  const [reportVisible, setReportVisible] = useState(false);
 
-  if (!profile) {
+  const profileFromRedux = profiles.find((p) => p.id === profileId);
+  const profile = profileFromRedux ?? fetchedProfile;
+  const canReport = user && profile && profile.userId !== user.id;
+
+  useEffect(() => {
+    if (profileFromRedux) return;
+    let cancelled = false;
+    setLoading(true);
+    firestoreService.getMatrimonialProfileById(profileId).then((p) => {
+      if (!cancelled) {
+        setFetchedProfile(p);
+      }
+      if (!cancelled) setLoading(false);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [profileId, profileFromRedux]);
+
+  const isAdmin = user?.role === 'admin';
+  const isPending = profile?.status === 'pending';
+
+  const handleApprove = async () => {
+    if (!profile) return;
+    setUpdating(true);
+    try {
+      await dispatch(
+        updateMatrimonialProfileStatus({
+          profileId: profile.id,
+          status: 'approved',
+          adminNotes: adminNotes || undefined,
+        })
+      ).unwrap();
+      Alert.alert('Approved', 'The profile has been approved.', [
+        { text: 'OK', onPress: () => navigation.goBack() },
+      ]);
+    } catch (e: any) {
+      Alert.alert('Error', e?.message ?? 'Failed to approve');
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleReject = async () => {
+    if (!profile) return;
+    setUpdating(true);
+    try {
+      await dispatch(
+        updateMatrimonialProfileStatus({
+          profileId: profile.id,
+          status: 'rejected',
+          adminNotes: adminNotes || undefined,
+        })
+      ).unwrap();
+      Alert.alert('Rejected', 'The profile has been rejected.', [
+        { text: 'OK', onPress: () => navigation.goBack() },
+      ]);
+    } catch (e: any) {
+      Alert.alert('Error', e?.message ?? 'Failed to reject');
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  if (loading && !profile) {
     return (
-      <View style={styles.container}>
-        <Text>Profile not found</Text>
+      <View style={[styles.container, { backgroundColor: colors.primaryBackground }]}>
+        <ActivityIndicator size="large" color={colors.tertiary} />
       </View>
     );
   }
 
-  const { personalInfo, familyInfo, preferences } = profile;
+  if (!profile) {
+    return (
+      <View style={[styles.container, { backgroundColor: colors.primaryBackground }]}>
+        <Text style={{ color: colors.primaryText }}>Profile not found</Text>
+      </View>
+    );
+  }
+
+  const adminFooter =
+    isAdmin && isPending ? (
+      <View style={styles.adminSection}>
+        <Text style={[styles.adminSectionTitle, { color: colors.primaryText }]}>Admin actions</Text>
+        <TextInput
+          style={[
+            styles.notesInput,
+            {
+              backgroundColor: colors.secondaryBackground,
+              color: colors.primaryText,
+              borderColor: colors.alternate + '33',
+            },
+          ]}
+          placeholder="Admin notes (optional)"
+          placeholderTextColor={colors.secondaryText}
+          value={adminNotes}
+          onChangeText={setAdminNotes}
+          multiline
+          numberOfLines={3}
+        />
+        <View style={styles.adminButtons}>
+          <Button title="Approve" onPress={handleApprove} variant="primary" disabled={updating} />
+          <View style={styles.adminButtonSpacer} />
+          <Button title="Reject" onPress={handleReject} variant="secondary" disabled={updating} />
+        </View>
+      </View>
+    ) : null;
+
+  const reportFooter = canReport ? (
+    <View style={styles.reportSection}>
+      <TouchableOpacity onPress={() => setReportVisible(true)}>
+        <Text style={[styles.reportText, { color: colors.secondaryText }]}>Report this profile</Text>
+      </TouchableOpacity>
+    </View>
+  ) : null;
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.content}>
-        {/* Photos */}
-        {profile.photos.length > 0 && (
-          <View style={styles.photosContainer}>
-            <Image source={{ uri: profile.photos[0] }} style={styles.mainPhoto} />
-          </View>
-        )}
-
-        {/* Personal Info - order: DOB, Place of Birth, Height, Caste, Religion, Gotra, Complexion, Education, Occupation, Nationality */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Personal Information</Text>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Name:</Text>
-            <Text style={styles.infoValue}>{personalInfo.name}</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Date of Birth:</Text>
-            <Text style={styles.infoValue}>{personalInfo.dateOfBirth}</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Place of Birth:</Text>
-            <Text style={styles.infoValue}>{personalInfo.placeOfBirth}</Text>
-          </View>
-          {personalInfo.height && (
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Height:</Text>
-              <Text style={styles.infoValue}>
-                {formatHeightForDisplay(personalInfo.height, personalInfo.heightInCm)}
-              </Text>
-            </View>
-          )}
-          {personalInfo.caste && (
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Caste:</Text>
-              <Text style={styles.infoValue}>{personalInfo.caste}</Text>
-            </View>
-          )}
-          {personalInfo.religion && (
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Religion:</Text>
-              <Text style={styles.infoValue}>{personalInfo.religion}</Text>
-            </View>
-          )}
-          {personalInfo.gotra && (
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Gotra:</Text>
-              <Text style={styles.infoValue}>{personalInfo.gotra}</Text>
-            </View>
-          )}
-          {personalInfo.complexion && (
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Complexion:</Text>
-              <Text style={styles.infoValue}>{personalInfo.complexion}</Text>
-            </View>
-          )}
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Education:</Text>
-            <Text style={styles.infoValue}>{personalInfo.education}</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Occupation:</Text>
-            <Text style={styles.infoValue}>{personalInfo.occupation}</Text>
-          </View>
-          {personalInfo.nationality && (
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Nationality:</Text>
-              <Text style={styles.infoValue}>{personalInfo.nationality}</Text>
-            </View>
-          )}
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Address:</Text>
-            <Text style={styles.infoValue}>{personalInfo.presentAddress}</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Contact:</Text>
-            <Text style={styles.infoValue}>{personalInfo.emailId}</Text>
-          </View>
-          {personalInfo.phoneNumber ? (
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Phone:</Text>
-              <Text style={styles.infoValue}>{personalInfo.phoneNumber}</Text>
-            </View>
-          ) : null}
-          {personalInfo.bio && (
-            <View style={styles.bioContainer}>
-              <Text style={styles.bioLabel}>Bio:</Text>
-              <Text style={styles.bioText}>{personalInfo.bio}</Text>
-            </View>
-          )}
-        </View>
-
-        {/* Family Info - Father, Mother, Younger Sibling */}
-        {familyInfo && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Family Information</Text>
-            {familyInfo.fatherName && (
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Father:</Text>
-                <Text style={styles.infoValue}>{familyInfo.fatherName}</Text>
-              </View>
-            )}
-            {familyInfo.motherName && (
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Mother:</Text>
-                <Text style={styles.infoValue}>{familyInfo.motherName}</Text>
-              </View>
-            )}
-            {familyInfo.youngerBrothers !== undefined && familyInfo.youngerBrothers !== null && (
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Number of younger siblings:</Text>
-                <Text style={styles.infoValue}>{familyInfo.youngerBrothers}</Text>
-              </View>
-            )}
-            {familyInfo.youngerSiblingNames && (
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Younger sibling names:</Text>
-                <Text style={styles.infoValue}>{familyInfo.youngerSiblingNames}</Text>
-              </View>
-            )}
-            {familyInfo.siblings !== undefined && (
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Siblings:</Text>
-                <Text style={styles.infoValue}>{familyInfo.siblings}</Text>
-              </View>
-            )}
-            {familyInfo.grandParents && (
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Grand Parents:</Text>
-                <Text style={styles.infoValue}>{familyInfo.grandParents}</Text>
-              </View>
-            )}
-            {familyInfo.maternalGrandParents && (
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Maternal Grand Parents:</Text>
-                <Text style={styles.infoValue}>{familyInfo.maternalGrandParents}</Text>
-              </View>
-            )}
-            {familyInfo.familyBackground && (
-              <View style={styles.bioContainer}>
-                <Text style={styles.bioLabel}>Family Background:</Text>
-                <Text style={styles.bioText}>{familyInfo.familyBackground}</Text>
-              </View>
-            )}
-          </View>
-        )}
-
-        {/* Preference */}
-        {preferences && (preferences.other || preferences.minAge || preferences.maxAge || (preferences.education && preferences.education.length > 0) || (preferences.location && preferences.location.length > 0)) && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Preference</Text>
-            {preferences.other && (
-              <View style={styles.bioContainer}>
-                <Text style={styles.bioLabel}>Preference:</Text>
-                <Text style={styles.bioText}>{preferences.other}</Text>
-              </View>
-            )}
-            {preferences.minAge != null && preferences.maxAge != null && (
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Age Range:</Text>
-                <Text style={styles.infoValue}>
-                  {preferences.minAge} - {preferences.maxAge} years
-                </Text>
-              </View>
-            )}
-            {preferences.education && preferences.education.length > 0 && (
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Education:</Text>
-                <Text style={styles.infoValue}>{preferences.education.join(', ')}</Text>
-              </View>
-            )}
-            {preferences.location && preferences.location.length > 0 && (
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Preferred Locations:</Text>
-                <Text style={styles.infoValue}>{preferences.location.join(', ')}</Text>
-              </View>
-            )}
-          </View>
-        )}
-      </View>
-    </ScrollView>
+    <>
+      <MatrimonialProfileDetailContent
+        profile={profile}
+        footer={
+          <>
+            {adminFooter}
+            {reportFooter}
+          </>
+        }
+      />
+      {user && profile && (
+        <ReportModal
+          visible={reportVisible}
+          onClose={() => setReportVisible(false)}
+          userId={user.id}
+          reportedUserId={profile.userId}
+          reportedProfileId={profile.id}
+        />
+      )}
+    </>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  content: {
-    padding: 20,
-  },
-  photosContainer: {
-    marginBottom: 20,
-  },
-  mainPhoto: {
-    width: '100%',
-    height: 300,
+  container: { flex: 1 },
+  adminSection: { margin: Spacing.standard, marginTop: Spacing.large, paddingBottom: Spacing.xxxl },
+  adminSectionTitle: { fontWeight: '600', marginBottom: Spacing.small, fontSize: 16 },
+  reportSection: { margin: Spacing.standard, marginTop: Spacing.medium },
+  reportText: { fontSize: 14, textDecorationLine: 'underline' },
+  notesInput: {
+    borderWidth: 1,
     borderRadius: 8,
+    padding: Spacing.medium,
+    minHeight: 80,
+    marginBottom: Spacing.medium,
   },
-  section: {
-    marginBottom: 30,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 15,
-    color: '#007AFF',
-  },
-  infoRow: {
-    flexDirection: 'row',
-    marginBottom: 10,
-  },
-  infoLabel: {
-    fontWeight: '600',
-    width: 120,
-    color: '#666',
-  },
-  infoValue: {
-    flex: 1,
-    color: '#333',
-  },
-  bioContainer: {
-    marginTop: 10,
-  },
-  bioLabel: {
-    fontWeight: '600',
-    marginBottom: 5,
-    color: '#666',
-  },
-  bioText: {
-    color: '#333',
-    lineHeight: 20,
-  },
+  adminButtons: { flexDirection: 'row' },
+  adminButtonSpacer: { width: Spacing.medium },
 });
 
 export default MatrimonialDetailScreen;
-

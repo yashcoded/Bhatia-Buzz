@@ -1,15 +1,19 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
-  TouchableOpacity,
+  Pressable,
   Text,
   StyleSheet,
   ViewStyle,
   TextStyle,
   ActivityIndicator,
 } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Colors, Typography, BorderRadius, TouchTarget, Shadows } from '../../constants/theme';
+import { Typography, BorderRadius, TouchTarget, Shadows } from '../../constants/theme';
+import { useTheme } from '../../utils/theme';
 import { useRTL } from '../../utils/rtl';
+
+const springConfig = { damping: 18, stiffness: 400 };
 
 interface ButtonProps {
   title: string;
@@ -32,98 +36,148 @@ const Button: React.FC<ButtonProps> = ({
   style,
   textStyle,
 }) => {
+  const { colors } = useTheme();
   const isDisabled = disabled || loading;
   const isRTL = useRTL();
+  const scale = useSharedValue(1);
+  const animatedScale = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  const themedStyles = useMemo(() => ({
+    secondaryButton: {
+      backgroundColor: colors.secondaryBackground,
+      borderWidth: 1.5,
+      borderColor: colors.alternate,
+    },
+    secondaryText: { color: colors.tertiary },
+    outlineButton: {
+      backgroundColor: 'transparent' as const,
+      borderWidth: 1.5,
+      borderColor: colors.alternate,
+      ...Shadows.subtle,
+    },
+    outlineText: { color: colors.alternate },
+    textButtonText: { color: colors.tertiary },
+  }), [colors]);
+
+  const onPressIn = () => {
+    if (!isDisabled) scale.value = withSpring(0.97, springConfig);
+  };
+  const onPressOut = () => {
+    scale.value = withSpring(1, springConfig);
+  };
 
   if (variant === 'primary') {
     return (
-      <TouchableOpacity
-        onPress={onPress}
-        disabled={isDisabled}
-        activeOpacity={0.8}
+      <Animated.View
         style={[
           styles.button,
           fullWidth && styles.fullWidth,
           isDisabled && styles.disabled,
           style,
+          animatedScale,
         ]}
       >
-        <LinearGradient
-          colors={[Colors.tertiary, Colors.tertiary + 'E6']} // E6 = 90% opacity
-          start={{ x: 0, y: 0 }}
-          end={{ x: 0, y: 1 }}
-          style={styles.gradient}
+        <Pressable
+          onPress={onPress}
+          onPressIn={onPressIn}
+          onPressOut={onPressOut}
+          disabled={isDisabled}
+          style={styles.pressableFill}
         >
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={[styles.primaryText, textStyle]}>{title}</Text>
-          )}
-        </LinearGradient>
-      </TouchableOpacity>
+          <LinearGradient
+            colors={[colors.tertiary, colors.tertiary + 'E6']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 1 }}
+            style={styles.gradient}
+          >
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={[styles.primaryText, textStyle]}>{title}</Text>
+            )}
+          </LinearGradient>
+        </Pressable>
+      </Animated.View>
     );
   }
 
   if (variant === 'secondary') {
     return (
-      <TouchableOpacity
-        onPress={onPress}
-        disabled={isDisabled}
-        activeOpacity={0.8}
+      <Animated.View
         style={[
           styles.button,
-          styles.secondaryButton,
+          themedStyles.secondaryButton,
           fullWidth && styles.fullWidth,
           isDisabled && styles.disabled,
           style,
+          animatedScale,
         ]}
       >
-        {loading ? (
-          <ActivityIndicator color={Colors.tertiary} />
-        ) : (
-          <Text style={[styles.secondaryText, textStyle]}>{title}</Text>
-        )}
-      </TouchableOpacity>
+        <Pressable
+          onPress={onPress}
+          onPressIn={onPressIn}
+          onPressOut={onPressOut}
+          disabled={isDisabled}
+          style={styles.pressableFill}
+        >
+          {loading ? (
+            <ActivityIndicator color={colors.tertiary} />
+          ) : (
+            <Text style={[styles.secondaryText, themedStyles.secondaryText, textStyle]}>{title}</Text>
+          )}
+        </Pressable>
+      </Animated.View>
     );
   }
 
   if (variant === 'outline') {
     return (
-      <TouchableOpacity
-        onPress={onPress}
-        disabled={isDisabled}
-        activeOpacity={0.8}
+      <Animated.View
         style={[
           styles.button,
-          styles.outlineButton,
+          themedStyles.outlineButton,
           fullWidth && styles.fullWidth,
           isDisabled && styles.disabled,
           style,
+          animatedScale,
         ]}
       >
-        {loading ? (
-          <ActivityIndicator color={Colors.alternate} />
-        ) : (
-          <Text style={[styles.outlineText, textStyle]}>{title}</Text>
-        )}
-      </TouchableOpacity>
+        <Pressable
+          onPress={onPress}
+          onPressIn={onPressIn}
+          onPressOut={onPressOut}
+          disabled={isDisabled}
+          style={styles.pressableFill}
+        >
+          {loading ? (
+            <ActivityIndicator color={colors.alternate} />
+          ) : (
+            <Text style={[styles.outlineText, themedStyles.outlineText, textStyle]}>{title}</Text>
+          )}
+        </Pressable>
+      </Animated.View>
     );
   }
 
   // Text variant
   return (
-    <TouchableOpacity
-      onPress={onPress}
-      disabled={isDisabled}
-      activeOpacity={0.6}
-      style={[styles.textButton, fullWidth && styles.fullWidth, style]}
-    >
-      {loading ? (
-        <ActivityIndicator color={Colors.tertiary} />
-      ) : (
-        <Text style={[styles.textButtonText, textStyle]}>{title}</Text>
-      )}
-    </TouchableOpacity>
+    <Animated.View style={[styles.textButton, fullWidth && styles.fullWidth, style, animatedScale]}>
+      <Pressable
+        onPress={onPress}
+        onPressIn={onPressIn}
+        onPressOut={onPressOut}
+        disabled={isDisabled}
+        style={styles.pressableFill}
+      >
+        {loading ? (
+          <ActivityIndicator color={colors.tertiary} />
+        ) : (
+          <Text style={[styles.textButtonText, themedStyles.textButtonText, textStyle]}>{title}</Text>
+        )}
+      </Pressable>
+    </Animated.View>
   );
 };
 
@@ -137,6 +191,13 @@ const styles = StyleSheet.create({
   },
   fullWidth: {
     width: '100%',
+  },
+  pressableFill: {
+    flex: 1,
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: BorderRadius.button,
   },
   gradient: {
     width: '100%',
@@ -152,27 +213,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: Typography.label1.fontSize * 1.2,
   },
-  secondaryButton: {
-    backgroundColor: Colors.secondaryBackground,
-    borderWidth: 1.5,
-    borderColor: Colors.alternate,
-  },
   secondaryText: {
     ...Typography.label1,
-    color: Colors.tertiary,
     fontFamily: 'Outfit',
     textAlign: 'center',
     lineHeight: Typography.label1.fontSize * 1.2,
   },
-  outlineButton: {
-    backgroundColor: 'transparent',
-    borderWidth: 1.5,
-    borderColor: Colors.alternate,
-    ...Shadows.subtle,
-  },
   outlineText: {
     ...Typography.label1,
-    color: Colors.alternate,
     fontFamily: 'Outfit',
     textAlign: 'center',
     lineHeight: Typography.label1.fontSize * 1.2,
@@ -186,7 +234,6 @@ const styles = StyleSheet.create({
   },
   textButtonText: {
     ...Typography.label1,
-    color: Colors.tertiary,
     fontFamily: 'Outfit',
     textAlign: 'center',
     lineHeight: Typography.label1.fontSize * 1.2,

@@ -10,6 +10,8 @@ export interface User {
   profile?: UserProfile;
   /** Set from Firebase Auth; true after user verifies email via link */
   emailVerified?: boolean;
+  /** True when user has been suspended (e.g. 5+ reports). Checked on load; suspended users are signed out. */
+  suspended?: boolean;
 }
 
 export interface UserProfile {
@@ -135,20 +137,22 @@ export type RootStackParamList = {
   Main: undefined;
   Feed: undefined;
   PanjaKhada: undefined;
-  Requests: undefined;
+  Requests: { openMyRequests?: boolean } | undefined;
   Matrimonial: undefined;
   Profile: undefined;
   RequestDetail: { requestId: string };
   MatrimonialDetail: { profileId: string };
   MatrimonialSwipe: undefined;
+  MatchFilter: undefined;
   Settings: undefined;
   EditProfile: undefined;
   PrivacyPolicy: undefined;
   TermsOfService: undefined;
   CreateMatrimonialProfile: undefined;
   AboutDeveloper: undefined;
+  AdminPendingRequests: undefined;
+  AdminPendingMatrimonial: undefined;
 };
-
 // Redux State Types
 export interface AuthState {
   user: User | null;
@@ -183,4 +187,5 @@ export interface RootState {
   requests: RequestsState;
   matrimonial: MatrimonialState;
 }
+
 
