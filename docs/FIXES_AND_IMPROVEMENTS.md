@@ -35,6 +35,14 @@ This document summarizes important fixes and improvements applied to the app, fo
 
 ---
 
+## CI (GitHub Actions)
+
+- **Pipeline** (`.github/workflows/pipeline.yml`) runs on **push to `main`**: Tests → Docker → EAS Build. The workflow files were removed when the app moved to `apps/mobile`; they have been re-added and updated to use root for install/tests and `apps/mobile` for Playwright config and EAS.
+- **Tests** (`.github/workflows/tests.yml`) runs on **pull requests** to `main` (tests only).
+- Tests use `pnpm exec playwright test -c apps/mobile/playwright.config.ts` from repo root. Ensure GitHub Secrets (Firebase, `EXPO_TOKEN`, etc.) are set so the pipeline can run. See [EXPO_BUILD_AND_DOCKER_CI.md](EXPO_BUILD_AND_DOCKER_CI.md).
+
+---
+
 ## Related docs
 
 | Topic | Document |
