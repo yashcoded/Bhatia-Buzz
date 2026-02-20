@@ -69,7 +69,7 @@ So in terms of **content and flow**, you are in good condition to launch globall
 
 2. **Keep “Last updated” accurate**  
    - When you change the Privacy Policy or Terms, set the revision date in config so the app does not show “today” every time.  
-   - In `apps/mobile/src/constants/config.ts`, `contactInfo.legalDocumentsLastUpdated` defaults to `'2025-02-01'`.  
+   - In `src/constants/config.ts`, `contactInfo.legalDocumentsLastUpdated` defaults to `'2025-02-01'`.  
    - You can override with env: `EXPO_PUBLIC_LEGAL_DOCS_LAST_UPDATED=2025-03-15` (use `YYYY-MM-DD`).  
    - Update this whenever you publish a new version of the legal documents.
 

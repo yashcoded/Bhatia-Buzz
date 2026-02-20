@@ -6,9 +6,9 @@ This document summarizes important fixes and improvements applied to the app, fo
 
 ## Project layout and dependencies
 
-- **Single package:** The app uses one `package.json` at the **repository root**. The app entry is `apps/mobile/index.ts`. There is no `package.json` under `apps/mobile`.
-- **One `node_modules`:** Run `pnpm install` only from the repo root. Do not run `npm`/`pnpm`/`yarn` install inside `apps/mobile` — that would create a second `node_modules` and can cause duplicate dependencies and build issues.
-- **Clean install:** If you ever see two `node_modules` (e.g. root and `apps/mobile`), remove `apps/mobile/node_modules` and run `pnpm install` from the root. Two `node_modules` can cause **Expo build issues** (Metro resolution, duplicate React, native build confusion), so keep only the root install.
+- **Single package:** The app uses one `package.json` at the **repository root**. The app entry is `index.ts`. All app code (src, assets, tests, app.config.ts, eas.json) is at the root.
+- **One `node_modules`:** Run `pnpm install` only from the repo root.
+- **Clean install:** If you ever see two `node_modules` folders, remove the extra one and run `pnpm install` from the root. Two `node_modules` can cause **Expo build issues** (Metro resolution, duplicate React, native build confusion).
 
 ---
 
@@ -37,9 +37,9 @@ This document summarizes important fixes and improvements applied to the app, fo
 
 ## CI (GitHub Actions)
 
-- **Pipeline** (`.github/workflows/pipeline.yml`) runs on **push to `main`**: Tests → Docker → EAS Build. The workflow files were removed when the app moved to `apps/mobile`; they have been re-added and updated to use root for install/tests and `apps/mobile` for Playwright config and EAS.
+- **Pipeline** (`.github/workflows/pipeline.yml`) runs on **push to `main`**: Tests → Docker → EAS Build. All steps run from repo root.
 - **Tests** (`.github/workflows/tests.yml`) runs on **pull requests** to `main` (tests only).
-- Tests use `pnpm exec playwright test -c apps/mobile/playwright.config.ts` from repo root. Ensure GitHub Secrets (Firebase, `EXPO_TOKEN`, etc.) are set so the pipeline can run. See [EXPO_BUILD_AND_DOCKER_CI.md](EXPO_BUILD_AND_DOCKER_CI.md).
+- Tests use `pnpm exec playwright test` from repo root. Ensure GitHub Secrets (Firebase, `EXPO_TOKEN`, etc.) are set. See [EXPO_BUILD_AND_DOCKER_CI.md](EXPO_BUILD_AND_DOCKER_CI.md).
 
 ---
 

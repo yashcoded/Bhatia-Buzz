@@ -23,14 +23,18 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     },
   };
 
-  const easProjectId = process.env.EAS_PROJECT_ID ?? config.extra?.eas?.projectId;
+  // EAS projectId: env override, then app.json, then default (required for CI non-interactive)
+  const easProjectId =
+    process.env.EAS_PROJECT_ID ??
+    config.extra?.eas?.projectId ??
+    '6d9fa859-d88b-4662-abcb-8f712915465a';
   return {
     name: config.name || 'Bhatia Buzz',
     slug: config.slug || 'Bhatia-Buzz',
     ...config,
     extra: {
       ...(config.extra ?? {}),
-      ...(easProjectId ? { eas: { projectId: easProjectId } } : {}),
+      eas: { projectId: easProjectId },
       ...extraFromEnv,
     },
     android: {

@@ -82,13 +82,13 @@ In the app: **Settings → About & Developer Docs** for an overview and doc list
 
 ### 1. Install Dependencies
 
-There is a **single `package.json` at the repo root** (app entry: `apps/mobile/index.ts`). Install only from the root to avoid duplicate `node_modules`:
+There is a **single `package.json` at the repo root** (app entry: `index.ts`). Install only from the root:
 
 ```bash
 pnpm install
 ```
 
-Do not run `npm`/`pnpm`/`yarn` install inside `apps/mobile`. If you ever see two `node_modules` folders, remove `apps/mobile/node_modules` and run `pnpm install` from the root. See [docs/FIXES_AND_IMPROVEMENTS.md](docs/FIXES_AND_IMPROVEMENTS.md) for details.
+See [docs/FIXES_AND_IMPROVEMENTS.md](docs/FIXES_AND_IMPROVEMENTS.md) for details.
 
 ### 2. Configure Firebase
 
