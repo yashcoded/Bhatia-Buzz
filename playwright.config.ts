@@ -21,7 +21,7 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: 'http://localhost:8081',
+    baseURL: 'http://localhost:19006',
     /* Stable viewport in CI */
     viewport: process.env.CI ? { width: 1280, height: 720 } : undefined,
     /* In CI skip trace to speed up retries; keep screenshot/video for debugging */
@@ -60,7 +60,7 @@ export default defineConfig({
   /* Run your local dev server before starting the tests */
   webServer: {
     command: 'pnpm run web',
-    url: 'http://localhost:8081',
+    url: 'http://localhost:19006',
     reuseExistingServer: !process.env.CI,
     timeout: process.env.CI ? 300 * 1000 : 180 * 1000, // 5 min in CI, 3 min locally
     stdout: 'ignore',
