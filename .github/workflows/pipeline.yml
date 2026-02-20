@@ -94,6 +94,8 @@ jobs:
         run: eas build --platform all --profile production --non-interactive --no-wait
         env:
           EAS_BUILD_NO_EXPO_GO_WARNING: true
+          # Required for non-interactive: app.config.ts reads this so EAS sees the project (same as app.json extra.eas.projectId)
+          EAS_PROJECT_ID: "6d9fa859-d88b-4662-abcb-8f712915465a"
           EXPO_PUBLIC_FIREBASE_API_KEY: ${{ secrets.EXPO_PUBLIC_FIREBASE_API_KEY }}
           EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ secrets.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN }}
           EXPO_PUBLIC_FIREBASE_PROJECT_ID: ${{ secrets.EXPO_PUBLIC_FIREBASE_PROJECT_ID }}
