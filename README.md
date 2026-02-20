@@ -67,11 +67,13 @@ All setup guides, API keys, compliance, and test status live in the **`docs/`** 
 | Link | Description |
 |------|-------------|
 | [docs/README.md](docs/README.md) | **Index of all documentation** |
+| [docs/FIXES_AND_IMPROVEMENTS.md](docs/FIXES_AND_IMPROVEMENTS.md) | **Fixes and improvements** — single package / node_modules, navigation, UI, legal |
+| [docs/LAUNCH_LEGAL_CHECKLIST.md](docs/LAUNCH_LEGAL_CHECKLIST.md) | Legal checklist for global launch (Privacy/Terms, store URLs, GitHub without a domain) |
 | [docs/SETUP.md](docs/SETUP.md) | Full project setup (install, Firebase, deploy, run) |
 | [docs/API_KEYS_AND_SETUP.md](docs/API_KEYS_AND_SETUP.md) | How to get every API key (Firebase, Google, Hugging Face, Instagram) |
 | [docs/DOCKER_AND_ENV.md](docs/DOCKER_AND_ENV.md) | Docker and environment variables |
 | [docs/SECURITY_AND_KEYS.md](docs/SECURITY_AND_KEYS.md) | Security and pre-push checklist |
-| [docs/TEST_RESULTS.md](docs/TEST_RESULTS.md) | E2E test status (69 tests) |
+| [docs/TEST_RESULTS.md](docs/TEST_RESULTS.md) | E2E test status |
 | [docs/TEST_IMPLEMENTATION_SUMMARY.md](docs/TEST_IMPLEMENTATION_SUMMARY.md) | How tests are structured and run |
 
 In the app: **Settings → About & Developer Docs** for an overview and doc list.
@@ -80,9 +82,13 @@ In the app: **Settings → About & Developer Docs** for an overview and doc list
 
 ### 1. Install Dependencies
 
+There is a **single `package.json` at the repo root** (app entry: `apps/mobile/index.ts`). Install only from the root to avoid duplicate `node_modules`:
+
 ```bash
 pnpm install
 ```
+
+Do not run `npm`/`pnpm`/`yarn` install inside `apps/mobile`. If you ever see two `node_modules` folders, remove `apps/mobile/node_modules` and run `pnpm install` from the root. See [docs/FIXES_AND_IMPROVEMENTS.md](docs/FIXES_AND_IMPROVEMENTS.md) for details.
 
 ### 2. Configure Firebase
 

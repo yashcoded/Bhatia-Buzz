@@ -1,0 +1,28 @@
+# Dependencies and build output (reinstalled in container)
+node_modules
+.expo
+dist
+web-build
+
+# Env and secrets – never bake into image; use env_file at runtime
+.env
+.env.*
+!.env.example
+
+# Git and IDE
+.git
+.gitignore
+.cursor
+*.md
+!README.md
+
+# Native and lock files (we keep pnpm-lock for reproducible install)
+ios
+android
+*.tsbuildinfo
+
+# Test and misc
+test-results
+playwright-report
+*.log
+.DS_Store

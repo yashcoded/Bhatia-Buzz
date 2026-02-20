@@ -1,7 +1,8 @@
 # Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
 
-# dependencies
+# dependencies (single package at root — do not run install inside apps/mobile)
 node_modules/
+apps/mobile/node_modules/
 
 # Expo
 .expo/
@@ -57,3 +58,6 @@ yarn.lock
 test-results/
 playwright-report/
 playwright/.cache/
+
+# Removed desktop/web app (Next.js)
+apps/web/
