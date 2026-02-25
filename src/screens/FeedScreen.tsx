@@ -33,6 +33,8 @@ import { Typography, Spacing, BorderRadius, Shadows, TouchTarget, type ThemeColo
 import { useTheme } from '../utils/theme';
 import { useResponsiveLayout } from '../utils/useResponsiveLayout';
 import { getFontFamily } from '../utils/fonts';
+import { instagramConfig } from '../constants/config';
+import { DUMMY_FEED_POSTS } from '../fixtures/dummyFeedPosts';
 
 // Plus Icon for FAB
 const PlusIcon = ({ color, size }: { color: string; size: number }) => (
@@ -82,6 +84,13 @@ const FeedScreen = () => {
   const isAdmin = user?.role === 'admin';
   const { contentWidth, isTablet } = useResponsiveLayout();
   const feedWrapperStyle = isTablet ? { maxWidth: contentWidth, width: '100%' as const, alignSelf: 'center' as const } : undefined;
+
+  // When there are no real posts and Instagram key is not set, show dummy example posts so the home isn’t empty
+  const displayPosts = useMemo(() => {
+    if (loading || refreshing || posts.length > 0) return posts;
+    if (!instagramConfig.accessToken) return DUMMY_FEED_POSTS;
+    return posts;
+  }, [loading, refreshing, posts]);
 
   // Request gallery permissions and pick image
   const pickImage = async () => {
@@ -292,7 +301,7 @@ const FeedScreen = () => {
         )}
         
         <FlatList
-        data={posts}
+        data={displayPosts}
         renderItem={renderPost}
         keyExtractor={(item) => item.id}
         refreshControl={
@@ -305,7 +314,9 @@ const FeedScreen = () => {
         }
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>No posts yet. Pull to refresh!</Text>
+            <Text style={styles.emptyText}>
+              {instagramConfig.accessToken ? 'No posts yet. Pull to refresh!' : 'No posts yet. Configure Firestore or Instagram to see your feed.'}
+            </Text>
           </View>
         }
         />
