@@ -2,7 +2,6 @@
   "name": "bhatia-buzz",
   "version": "1.0.0",
   "main": "index.ts",
-  "packageManager": "pnpm@9.15.0",
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
