@@ -26,7 +26,7 @@ test.describe('Navigation', () => {
     */
     
     // For now, just check auth screen
-    await expect(page.locator('text=/Bhatia/i')).toBeVisible();
+    await expect(page.locator('text=/Bhatia/i').first()).toBeVisible();
   });
 
   test('should navigate to Feed tab', async ({ page }) => {
@@ -36,7 +36,7 @@ test.describe('Navigation', () => {
     await expect(navigationHelper.isOnTab('Feed')).resolves.toBe(true);
     */
     
-    await expect(page.locator('text=/Bhatia/i')).toBeVisible();
+    await expect(page.locator('text=/Bhatia/i').first()).toBeVisible();
   });
 
   test('should navigate to Requests tab', async ({ page }) => {
@@ -46,7 +46,7 @@ test.describe('Navigation', () => {
     await expect(navigationHelper.isOnTab('Requests')).resolves.toBe(true);
     */
     
-    await expect(page.locator('text=/Bhatia/i')).toBeVisible();
+    await expect(page.locator('text=/Bhatia/i').first()).toBeVisible();
   });
 
   test('should navigate to Matrimonial tab', async ({ page }) => {
@@ -56,7 +56,7 @@ test.describe('Navigation', () => {
     await expect(navigationHelper.isOnTab('Matrimonial')).resolves.toBe(true);
     */
     
-    await expect(page.locator('text=/Bhatia/i')).toBeVisible();
+    await expect(page.locator('text=/Bhatia/i').first()).toBeVisible();
   });
 
   test('should navigate to Profile tab', async ({ page }) => {
@@ -66,7 +66,7 @@ test.describe('Navigation', () => {
     await expect(navigationHelper.isOnTab('Profile')).resolves.toBe(true);
     */
     
-    await expect(page.locator('text=/Bhatia/i')).toBeVisible();
+    await expect(page.locator('text=/Bhatia/i').first()).toBeVisible();
   });
 
   test('should maintain active tab state', async ({ page }) => {
@@ -77,7 +77,7 @@ test.describe('Navigation', () => {
     await expect(navigationHelper.isOnTab('Feed')).resolves.toBe(true);
     */
     
-    await expect(page.locator('text=/Bhatia/i')).toBeVisible();
+    await expect(page.locator('text=/Bhatia/i').first()).toBeVisible();
   });
 });
 

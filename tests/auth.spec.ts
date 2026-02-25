@@ -18,8 +18,8 @@ test.describe('Authentication', () => {
     await page.locator('text=/Bhatia/i').first().waitFor({ state: 'visible', timeout: 15000 });
     
     // Check for app title - it might be in different formats
-    const titleVisible = await page.locator('text=/Bhatia/i').isVisible().catch(() => false) ||
-                        await page.locator('text=/Bhatia Buzz/i').isVisible().catch(() => false);
+    const titleVisible = await page.locator('text=/Bhatia/i').first().isVisible().catch(() => false) ||
+                        await page.locator('text=/Bhatia Buzz/i').first().isVisible().catch(() => false);
     
     expect(titleVisible).toBeTruthy();
   });
@@ -89,7 +89,7 @@ test.describe('Authentication', () => {
     */
     
     // Placeholder assertion
-    await expect(page.locator('text=/Bhatia/i')).toBeVisible();
+    await expect(page.locator('text=/Bhatia/i').first()).toBeVisible();
   });
 
   test('should show sign up form with all required fields', async ({ page }) => {
@@ -148,12 +148,12 @@ test.describe('Authentication', () => {
   test('should persist authentication state on page reload', async ({ page }) => {
     await page.locator('text=/Bhatia/i').first().waitFor({ state: 'visible', timeout: 15000 });
     
-    const titleVisible = await page.locator('text=/Bhatia/i').isVisible().catch(() => false);
+    const titleVisible = await page.locator('text=/Bhatia/i').first().isVisible().catch(() => false);
     expect(titleVisible).toBeTruthy();
     
     await page.reload({ waitUntil: 'domcontentloaded' });
     await page.locator('text=/Bhatia/i').first().waitFor({ state: 'visible', timeout: 15000 });
-    const titleVisibleAfterReload = await page.locator('text=/Bhatia/i').isVisible().catch(() => false);
+    const titleVisibleAfterReload = await page.locator('text=/Bhatia/i').first().isVisible().catch(() => false);
     expect(titleVisibleAfterReload).toBeTruthy();
   });
 });

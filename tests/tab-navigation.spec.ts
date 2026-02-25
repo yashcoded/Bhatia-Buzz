@@ -41,12 +41,12 @@ test.describe('Tab Navigation', () => {
       
       // Should see Feed content
       const feedContent = await page.locator('text=/Feed/i').isVisible({ timeout: 3000 }).catch(() => false) ||
-                         await page.locator('text=/Bhatia Buzz/i').isVisible({ timeout: 3000 }).catch(() => false);
+                         await page.locator('text=/Bhatia Buzz/i').first().isVisible({ timeout: 3000 }).catch(() => false);
       
       expect(feedExists).toBeTruthy();
     } else {
       // App should at least load
-      const appLoaded = await page.locator('text=/Bhatia/i').isVisible().catch(() => false);
+      const appLoaded = await page.locator('text=/Bhatia/i').first().isVisible().catch(() => false);
       expect(appLoaded).toBeTruthy();
     }
   });
@@ -86,7 +86,7 @@ test.describe('Tab Navigation', () => {
       
       expect(tabExists).toBeTruthy();
     } else {
-      const appLoaded = await page.locator('text=/Bhatia/i').isVisible().catch(() => false);
+      const appLoaded = await page.locator('text=/Bhatia/i').first().isVisible().catch(() => false);
       expect(appLoaded).toBeTruthy();
     }
   });
@@ -106,7 +106,7 @@ test.describe('Tab Navigation', () => {
       
       expect(tabExists).toBeTruthy();
     } else {
-      const appLoaded = await page.locator('text=/Bhatia/i').isVisible().catch(() => false);
+      const appLoaded = await page.locator('text=/Bhatia/i').first().isVisible().catch(() => false);
       expect(appLoaded).toBeTruthy();
     }
   });

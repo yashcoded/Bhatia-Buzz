@@ -23,7 +23,7 @@ test.describe('Requests Feature', () => {
     await expect(page.locator('text=Requests')).toBeVisible();
     */
     
-    await expect(page.locator('text=/Bhatia/i')).toBeVisible();
+    await expect(page.locator('text=/Bhatia/i').first()).toBeVisible();
   });
 
   test('should show filter tabs (All, Condolences, Celebrations)', async ({ page }) => {
@@ -34,7 +34,7 @@ test.describe('Requests Feature', () => {
     await expect(page.locator('text=/Celebration/i')).toBeVisible();
     */
     
-    await expect(page.locator('text=/Bhatia/i')).toBeVisible();
+    await expect(page.locator('text=/Bhatia/i').first()).toBeVisible();
   });
 
   test('should filter requests by type', async ({ page }) => {
@@ -54,7 +54,7 @@ test.describe('Requests Feature', () => {
     }
     */
     
-    await expect(page.locator('text=/Bhatia/i')).toBeVisible();
+    await expect(page.locator('text=/Bhatia/i').first()).toBeVisible();
   });
 
   test('should display request cards with details', async ({ page }) => {
@@ -68,7 +68,7 @@ test.describe('Requests Feature', () => {
     await expect(requestCard.locator('[data-testid="request-type"]')).toBeVisible();
     */
     
-    await expect(page.locator('text=/Bhatia/i')).toBeVisible();
+    await expect(page.locator('text=/Bhatia/i').first()).toBeVisible();
   });
 
   test('should navigate to request detail on click', async ({ page }) => {
@@ -81,7 +81,7 @@ test.describe('Requests Feature', () => {
     await expect(page.locator('text=Request Details')).toBeVisible();
     */
     
-    await expect(page.locator('text=/Bhatia/i')).toBeVisible();
+    await expect(page.locator('text=/Bhatia/i').first()).toBeVisible();
   });
 
   test('should show empty state when no requests', async ({ page }) => {
@@ -90,7 +90,7 @@ test.describe('Requests Feature', () => {
     await expect(page.locator('text=No requests yet')).toBeVisible();
     */
     
-    await expect(page.locator('text=/Bhatia/i')).toBeVisible();
+    await expect(page.locator('text=/Bhatia/i').first()).toBeVisible();
   });
 
   test('should display request status', async ({ page }) => {
@@ -103,7 +103,7 @@ test.describe('Requests Feature', () => {
     await expect(requestCard.locator('[data-testid="request-status"]')).toBeVisible();
     */
     
-    await expect(page.locator('text=/Bhatia/i')).toBeVisible();
+    await expect(page.locator('text=/Bhatia/i').first()).toBeVisible();
   });
 });
 

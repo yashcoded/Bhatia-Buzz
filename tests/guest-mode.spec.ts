@@ -26,7 +26,7 @@ test.describe('Guest Mode', () => {
     // Check if we can see tabs (guest mode) or auth screen (both acceptable)
     const hasTabs = await page.locator('text=/Feed/i').isVisible({ timeout: 3000 }).catch(() => false) ||
                     await page.locator('text=/Panja Khada/i').isVisible({ timeout: 3000 }).catch(() => false);
-    const hasAuth = await page.locator('text=/Bhatia/i').isVisible({ timeout: 3000 }).catch(() => false) ||
+    const hasAuth = await page.locator('text=/Bhatia/i').first().isVisible({ timeout: 3000 }).catch(() => false) ||
                     await page.locator('input[type="email"]').isVisible({ timeout: 3000 }).catch(() => false);
     
     // Either tabs (guest mode) or auth screen should be visible; app already verified above

@@ -23,7 +23,7 @@ test.describe('Profile Feature', () => {
     await expect(page.locator('text=Profile')).toBeVisible();
     */
     
-    await expect(page.locator('text=/Bhatia/i')).toBeVisible();
+    await expect(page.locator('text=/Bhatia/i').first()).toBeVisible();
   });
 
   test('should display user information', async ({ page }) => {
@@ -33,7 +33,7 @@ test.describe('Profile Feature', () => {
     await expect(page.locator(`text=${testUsers.regular.email}`)).toBeVisible();
     */
     
-    await expect(page.locator('text=/Bhatia/i')).toBeVisible();
+    await expect(page.locator('text=/Bhatia/i').first()).toBeVisible();
   });
 
   test('should display user avatar or placeholder', async ({ page }) => {
@@ -44,7 +44,7 @@ test.describe('Profile Feature', () => {
     await expect(avatar).toBeVisible();
     */
     
-    await expect(page.locator('text=/Bhatia/i')).toBeVisible();
+    await expect(page.locator('text=/Bhatia/i').first()).toBeVisible();
   });
 
   test('should show edit profile button', async ({ page }) => {
@@ -53,7 +53,7 @@ test.describe('Profile Feature', () => {
     await expect(page.locator('button:has-text(/Edit Profile|✏️ Edit Profile/i)')).toBeVisible();
     */
     
-    await expect(page.locator('text=/Bhatia/i')).toBeVisible();
+    await expect(page.locator('text=/Bhatia/i').first()).toBeVisible();
   });
 
   test('should show settings button', async ({ page }) => {
@@ -62,7 +62,7 @@ test.describe('Profile Feature', () => {
     await expect(page.locator('button:has-text(/Settings|⚙️ Settings/i)')).toBeVisible();
     */
     
-    await expect(page.locator('text=/Bhatia/i')).toBeVisible();
+    await expect(page.locator('text=/Bhatia/i').first()).toBeVisible();
   });
 
   test('should sign out successfully', async ({ page }) => {
@@ -71,11 +71,11 @@ test.describe('Profile Feature', () => {
     await page.click('button:has-text("Sign Out")');
     
     // Should return to auth screen
-    await expect(page.locator('text=/Bhatia/i')).toBeVisible();
+    await expect(page.locator('text=/Bhatia/i').first()).toBeVisible();
     await expect(page.locator('text=Sign in to continue')).toBeVisible();
     */
     
-    await expect(page.locator('text=/Bhatia/i')).toBeVisible();
+    await expect(page.locator('text=/Bhatia/i').first()).toBeVisible();
   });
 
   test('should display admin badge for admin users', async ({ page }) => {
@@ -87,7 +87,7 @@ test.describe('Profile Feature', () => {
     await expect(page.locator('text=Admin')).toBeVisible();
     */
     
-    await expect(page.locator('text=/Bhatia/i')).toBeVisible();
+    await expect(page.locator('text=/Bhatia/i').first()).toBeVisible();
   });
 
   test('should display profile information section', async ({ page }) => {
@@ -96,7 +96,7 @@ test.describe('Profile Feature', () => {
     await expect(page.locator('text=/Profile Information|Account Details/i')).toBeVisible();
     */
     
-    await expect(page.locator('text=/Bhatia/i')).toBeVisible();
+    await expect(page.locator('text=/Bhatia/i').first()).toBeVisible();
   });
 });
 

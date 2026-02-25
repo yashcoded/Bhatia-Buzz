@@ -23,7 +23,7 @@ test.describe('Feed Feature', () => {
     await expect(page.locator('text=Feed')).toBeVisible();
     */
     
-    await expect(page.locator('text=/Bhatia/i')).toBeVisible();
+    await expect(page.locator('text=/Bhatia/i').first()).toBeVisible();
   });
 
   test('should show posts in feed', async ({ page }) => {
@@ -35,7 +35,7 @@ test.describe('Feed Feature', () => {
     expect(posts).toBeGreaterThan(0);
     */
     
-    await expect(page.locator('text=/Bhatia/i')).toBeVisible();
+    await expect(page.locator('text=/Bhatia/i').first()).toBeVisible();
   });
 
   test('should support pull to refresh', async ({ page }) => {
@@ -45,7 +45,7 @@ test.describe('Feed Feature', () => {
     // May need to use touch events or specific selectors
     */
     
-    await expect(page.locator('text=/Bhatia/i')).toBeVisible();
+    await expect(page.locator('text=/Bhatia/i').first()).toBeVisible();
   });
 
   test('should display empty state when no posts', async ({ page }) => {
@@ -54,7 +54,7 @@ test.describe('Feed Feature', () => {
     await expect(page.locator('text=No posts yet')).toBeVisible();
     */
     
-    await expect(page.locator('text=/Bhatia/i')).toBeVisible();
+    await expect(page.locator('text=/Bhatia/i').first()).toBeVisible();
   });
 
   test('should like a post', async ({ page }) => {
@@ -66,7 +66,7 @@ test.describe('Feed Feature', () => {
     // Verify like count increased or button state changed
     */
     
-    await expect(page.locator('text=/Bhatia/i')).toBeVisible();
+    await expect(page.locator('text=/Bhatia/i').first()).toBeVisible();
   });
 
   test('should display post details', async ({ page }) => {
@@ -80,7 +80,7 @@ test.describe('Feed Feature', () => {
     await expect(post.locator('[data-testid="post-content"]')).toBeVisible();
     */
     
-    await expect(page.locator('text=/Bhatia/i')).toBeVisible();
+    await expect(page.locator('text=/Bhatia/i').first()).toBeVisible();
   });
 
   test('should show loading state while fetching posts', async ({ page }) => {
@@ -91,7 +91,7 @@ test.describe('Feed Feature', () => {
     // May need to check for loading spinner/indicator
     */
     
-    await expect(page.locator('text=/Bhatia/i')).toBeVisible();
+    await expect(page.locator('text=/Bhatia/i').first()).toBeVisible();
   });
 });
 

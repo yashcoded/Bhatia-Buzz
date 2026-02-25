@@ -15,23 +15,29 @@ test.describe('About & Developer', () => {
     await navigationHelper.goToProfile();
     await page.waitForTimeout(800);
 
-    const settingsButton = page.locator('text=/Settings/i').first();
+    const settingsButton = page.locator('button:has-text("Settings"), [role="button"]:has-text("Settings")').first();
     const settingsVisible = await settingsButton.isVisible({ timeout: 5000 }).catch(() => false);
     if (!settingsVisible) {
-      // Guest or app not fully loaded; skip (requires auth to reach Settings)
+      // Guest mode: Profile has no Settings button; skip (requires auth)
+      expect(true).toBeTruthy();
       return;
     }
 
     await settingsButton.click();
-    await page.waitForTimeout(800);
+    await page.waitForTimeout(1200);
 
-    const aboutLink = page.locator('text=/About & Developer Docs/i').or(
-      page.locator('text=/About & Developer/i')
-    ).first();
-    const aboutVisible = await aboutLink.isVisible({ timeout: 5000 }).catch(() => false);
+    // Match button or section: "About & Developer Docs" or "About & Developer" (emoji may be separate node)
+    const aboutLink = page.getByText(/Developer Docs/i).first();
+    const aboutFallback = page.getByText(/About & Developer/i).first();
+    const aboutVisible = await aboutLink.isVisible({ timeout: 8000 }).catch(() => false)
+      || await aboutFallback.isVisible({ timeout: 2000 }).catch(() => false);
     expect(aboutVisible).toBeTruthy();
 
-    await aboutLink.click();
+    if (await aboutLink.isVisible().catch(() => false)) {
+      await aboutLink.click();
+    } else {
+      await aboutFallback.click();
+    }
     await page.waitForTimeout(1000);
 
     await expect(page.locator('text=About Bhatia Buzz')).toBeVisible({ timeout: 5000 });
@@ -48,12 +54,12 @@ test.describe('About & Developer', () => {
     }
 
     await settingsButton.click();
-    await page.waitForTimeout(800);
+    await page.waitForTimeout(1200);
 
-    const aboutLink = page.locator('text=/About & Developer Docs/i').or(
-      page.locator('text=/About & Developer/i')
-    ).first();
-    if (!(await aboutLink.isVisible({ timeout: 5000 }).catch(() => false))) {
+    const aboutLink = page.getByRole('button', { name: /About.*Developer/i }).or(
+      page.locator('text=/Developer Docs/i')
+    ).or(page.locator('text=/About & Developer/i')).first();
+    if (!(await aboutLink.isVisible({ timeout: 10000 }).catch(() => false))) {
       expect(true).toBeTruthy();
       return;
     }

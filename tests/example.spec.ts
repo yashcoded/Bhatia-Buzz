@@ -13,7 +13,7 @@ test.describe('Example Test Suite', () => {
 
   test('example test', async ({ page }) => {
     // Your test code here
-    await expect(page.locator('text=/Bhatia/i')).toBeVisible();
+    await expect(page.locator('text=/Bhatia/i').first()).toBeVisible();
   });
 });
 
