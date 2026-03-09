@@ -18,6 +18,7 @@ import { useTheme } from '../utils/theme';
 import { getFontFamily } from '../utils/fonts';
 import Button from '../components/common/Button';
 import FadeInView from '../components/common/FadeInView';
+import ScreenContent from '../components/common/ScreenContent';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -65,7 +66,7 @@ const MatrimonialScreen = () => {
   if (!user) {
     return (
       <View style={styles.container}>
-        <View style={styles.signInGate}>
+        <ScreenContent style={styles.signInGate}>
           <Text style={styles.signInGateTitle}>Sign in to access Matrimonial</Text>
           <Text style={styles.signInGateText}>
             Create an account or sign in to create your profile, browse matches, and connect.
@@ -75,7 +76,7 @@ const MatrimonialScreen = () => {
             onPress={() => navigation.navigate('Auth')}
             style={styles.signInButton}
           />
-        </View>
+        </ScreenContent>
       </View>
     );
   }
@@ -87,43 +88,45 @@ const MatrimonialScreen = () => {
           <ActivityIndicator size="large" color={colors.tertiary} />
         </View>
       ) : (
-        <FadeInView style={styles.content}>
-          {!userProfile ? (
-            <View style={styles.emptyContainer}>
-              <Text style={styles.emptyTitle}>No Profile Yet</Text>
-              <Text style={styles.emptyText}>
-                Create your matrimonial profile to find matches
-              </Text>
-              <TouchableOpacity style={styles.button} onPress={handleCreateProfile}>
-                <Text style={styles.buttonText}>Create Profile</Text>
-              </TouchableOpacity>
-            </View>
-          ) : userProfile.status === 'pending' ? (
-            <View style={styles.pendingContainer}>
-              <Text style={styles.pendingTitle}>Profile Under Review</Text>
-              <Text style={styles.pendingText}>
-                Your profile is being reviewed by admins. You'll be notified once it's approved.
-              </Text>
-            </View>
-          ) : (
-            <View style={styles.profileContainer}>
-              <Text style={styles.welcomeText}>Welcome, {userProfile.personalInfo.name}!</Text>
-              <TouchableOpacity style={styles.button} onPress={handleSwipe}>
-                <Text style={styles.buttonText}>Find Matches</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.button, styles.secondaryButton]}
-                onPress={() => {
-                  navigation.navigate('MatrimonialDetail', { profileId: userProfile.id });
-                }}
-              >
-                <Text style={[styles.buttonText, styles.secondaryButtonText]}>
-                  View My Profile
+        <ScreenContent style={styles.content}>
+          <FadeInView style={styles.innerContent}>
+            {!userProfile ? (
+              <View style={styles.emptyContainer}>
+                <Text style={styles.emptyTitle}>No Profile Yet</Text>
+                <Text style={styles.emptyText}>
+                  Create your matrimonial profile to find matches
                 </Text>
-              </TouchableOpacity>
-            </View>
-          )}
-        </FadeInView>
+                <TouchableOpacity style={styles.button} onPress={handleCreateProfile}>
+                  <Text style={styles.buttonText}>Create Profile</Text>
+                </TouchableOpacity>
+              </View>
+            ) : userProfile.status === 'pending' ? (
+              <View style={styles.pendingContainer}>
+                <Text style={styles.pendingTitle}>Profile Under Review</Text>
+                <Text style={styles.pendingText}>
+                  Your profile is being reviewed by admins. You'll be notified once it's approved.
+                </Text>
+              </View>
+            ) : (
+              <View style={styles.profileContainer}>
+                <Text style={styles.welcomeText}>Welcome, {userProfile.personalInfo.name}!</Text>
+                <TouchableOpacity style={styles.button} onPress={handleSwipe}>
+                  <Text style={styles.buttonText}>Find Matches</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.button, styles.secondaryButton]}
+                  onPress={() => {
+                    navigation.navigate('MatrimonialDetail', { profileId: userProfile.id });
+                  }}
+                >
+                  <Text style={[styles.buttonText, styles.secondaryButtonText]}>
+                    View My Profile
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </FadeInView>
+        </ScreenContent>
       )}
     </View>
   );
@@ -163,6 +166,7 @@ function makeStyles(colors: ThemeColors) {
       alignItems: 'center',
     },
     content: { flex: 1, padding: Spacing.large },
+    innerContent: { flex: 1 },
     emptyContainer: {
       flex: 1,
       justifyContent: 'center',

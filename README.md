@@ -71,6 +71,7 @@ All setup guides, API keys, compliance, and test status live in the **`docs/`** 
 | [docs/API_KEYS_AND_SETUP.md](docs/API_KEYS_AND_SETUP.md) | How to get every API key (Firebase, Google, Hugging Face, Instagram) |
 | [docs/DOCKER_AND_ENV.md](docs/DOCKER_AND_ENV.md) | Docker and environment variables |
 | [docs/SECURITY_AND_KEYS.md](docs/SECURITY_AND_KEYS.md) | Security and pre-push checklist |
+| [docs/CSAE_SAFETY_STANDARDS.md](docs/CSAE_SAFETY_STANDARDS.md) | Safety standards against child sexual abuse and exploitation (CSAE) |
 | [docs/TEST_RESULTS.md](docs/TEST_RESULTS.md) | E2E test status (69 tests) |
 | [docs/TEST_IMPLEMENTATION_SUMMARY.md](docs/TEST_IMPLEMENTATION_SUMMARY.md) | How tests are structured and run |
 

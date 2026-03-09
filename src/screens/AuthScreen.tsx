@@ -16,6 +16,7 @@ import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { signInUser, signUpUser, signInWithGoogleUser } from '../store/slices/authSlice';
 import Button from '../components/common/Button';
 import GoogleSignInButton from '../components/common/GoogleSignInButton';
+import ScreenContent from '../components/common/ScreenContent';
 import {
   Colors,
   Typography,
@@ -137,137 +138,139 @@ const AuthScreen = () => {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.content}>
-            {/* Title */}
-            <Text style={styles.title}>Bhatia</Text>
-            <Text style={[styles.title, styles.titleAccent]}>Buzz</Text>
+            <ScreenContent>
+              {/* Title */}
+              <Text style={styles.title}>Bhatia</Text>
+              <Text style={[styles.title, styles.titleAccent]}>Buzz</Text>
 
-            {/* Subtitle */}
-            <Text style={styles.subtitle}>
-              {isSignUp ? t('auth.subtitleSignUp') : t('auth.subtitleSignIn')}
-            </Text>
+              {/* Subtitle */}
+              <Text style={styles.subtitle}>
+                {isSignUp ? t('auth.subtitleSignUp') : t('auth.subtitleSignIn')}
+              </Text>
 
-            {/* Form */}
-            <View style={styles.form}>
-              {isSignUp && (
-                <>
-                  <TextInput
-                    style={styles.input}
-                    placeholder={t('auth.displayName')}
-                    placeholderTextColor={colors.secondaryText}
-                    value={displayName}
-                    onChangeText={setDisplayName}
-                    autoCapitalize="words"
-                  />
-                  <TextInput
-                    style={styles.input}
-                    placeholder={t('auth.agePlaceholder', { minAge: ageRequirement.minAge })}
-                    placeholderTextColor={colors.secondaryText}
-                    value={age}
-                    onChangeText={setAge}
-                    keyboardType="number-pad"
-                  />
-                </>
-              )}
+              {/* Form */}
+              <View style={styles.form}>
+                {isSignUp && (
+                  <>
+                    <TextInput
+                      style={styles.input}
+                      placeholder={t('auth.displayName')}
+                      placeholderTextColor={colors.secondaryText}
+                      value={displayName}
+                      onChangeText={setDisplayName}
+                      autoCapitalize="words"
+                    />
+                    <TextInput
+                      style={styles.input}
+                      placeholder={t('auth.agePlaceholder', { minAge: ageRequirement.minAge })}
+                      placeholderTextColor={colors.secondaryText}
+                      value={age}
+                      onChangeText={setAge}
+                      keyboardType="number-pad"
+                    />
+                  </>
+                )}
 
-              <TextInput
-                style={styles.input}
-                placeholder={t('auth.email')}
-                placeholderTextColor={colors.secondaryText}
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoComplete="email"
-              />
+                <TextInput
+                  style={styles.input}
+                  placeholder={t('auth.email')}
+                  placeholderTextColor={colors.secondaryText}
+                  value={email}
+                  onChangeText={setEmail}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoComplete="email"
+                />
 
-              <TextInput
-                style={styles.input}
-                placeholder={t('auth.password')}
-                placeholderTextColor={colors.secondaryText}
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-                autoCapitalize="none"
-              />
+                <TextInput
+                  style={styles.input}
+                  placeholder={t('auth.password')}
+                  placeholderTextColor={colors.secondaryText}
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry
+                  autoCapitalize="none"
+                />
 
-              {error && <Text style={styles.errorText}>{error}</Text>}
+                {error && <Text style={styles.errorText}>{error}</Text>}
 
-              {/* Consent checkboxes for signup */}
-              {isSignUp && (
-                <View style={styles.consentContainer}>
-                  <TouchableOpacity
-                    style={styles.checkboxRow}
-                    onPress={() => setAcceptedTerms(!acceptedTerms)}
-                    activeOpacity={0.7}
-                  >
-                    <View style={[styles.checkbox, acceptedTerms && styles.checkboxChecked]}>
-                      {acceptedTerms && <Text style={styles.checkmark}>✓</Text>}
-                    </View>
-                    <Text style={styles.consentText}>
-                      {t('auth.agreeTerms')}{' '}
-                      <Text style={styles.linkText} onPress={() => navigation?.navigate('TermsOfService' as any)}>
-                        {t('auth.termsOfService')}
+                {/* Consent checkboxes for signup */}
+                {isSignUp && (
+                  <View style={styles.consentContainer}>
+                    <TouchableOpacity
+                      style={styles.checkboxRow}
+                      onPress={() => setAcceptedTerms(!acceptedTerms)}
+                      activeOpacity={0.7}
+                    >
+                      <View style={[styles.checkbox, acceptedTerms && styles.checkboxChecked]}>
+                        {acceptedTerms && <Text style={styles.checkmark}>✓</Text>}
+                      </View>
+                      <Text style={styles.consentText}>
+                        {t('auth.agreeTerms')}{' '}
+                        <Text style={styles.linkText} onPress={() => navigation?.navigate('TermsOfService' as any)}>
+                          {t('auth.termsOfService')}
+                        </Text>
                       </Text>
-                    </Text>
-                  </TouchableOpacity>
-                  
-                  <TouchableOpacity
-                    style={styles.checkboxRow}
-                    onPress={() => setAcceptedPrivacy(!acceptedPrivacy)}
-                    activeOpacity={0.7}
-                  >
-                    <View style={[styles.checkbox, acceptedPrivacy && styles.checkboxChecked]}>
-                      {acceptedPrivacy && <Text style={styles.checkmark}>✓</Text>}
-                    </View>
-                    <Text style={styles.consentText}>
-                      {t('auth.agreePrivacy')}{' '}
-                      <Text style={styles.linkText} onPress={() => navigation?.navigate('PrivacyPolicy' as any)}>
-                        {t('auth.privacyPolicy')}
+                    </TouchableOpacity>
+                    
+                    <TouchableOpacity
+                      style={styles.checkboxRow}
+                      onPress={() => setAcceptedPrivacy(!acceptedPrivacy)}
+                      activeOpacity={0.7}
+                    >
+                      <View style={[styles.checkbox, acceptedPrivacy && styles.checkboxChecked]}>
+                        {acceptedPrivacy && <Text style={styles.checkmark}>✓</Text>}
+                      </View>
+                      <Text style={styles.consentText}>
+                        {t('auth.agreePrivacy')}{' '}
+                        <Text style={styles.linkText} onPress={() => navigation?.navigate('PrivacyPolicy' as any)}>
+                          {t('auth.privacyPolicy')}
+                        </Text>
                       </Text>
-                    </Text>
-                  </TouchableOpacity>
+                    </TouchableOpacity>
+                  </View>
+                )}
+
+                {/* Primary CTA */}
+                <View style={styles.buttonContainer}>
+                  <Button
+                    title={isSignUp ? t('auth.signUp') : t('auth.signIn')}
+                    onPress={isSignUp ? handleSignUp : handleSignIn}
+                    loading={loading}
+                    variant="primary"
+                  />
                 </View>
-              )}
 
-              {/* Primary CTA */}
-              <View style={styles.buttonContainer}>
+                {/* Divider */}
+                <View style={styles.dividerContainer}>
+                  <View style={styles.dividerLine} />
+                  <Text style={styles.dividerText}>{t('auth.or')}</Text>
+                  <View style={styles.dividerLine} />
+                </View>
+
+                {/* Google Sign In */}
+                <View style={styles.buttonContainer}>
+                  <GoogleSignInButton
+                    onPress={handleGoogleSignIn}
+                    loading={loading}
+                    disabled={loading}
+                  />
+                </View>
+
+                {/* Switch Mode */}
                 <Button
-                  title={isSignUp ? t('auth.signUp') : t('auth.signIn')}
-                  onPress={isSignUp ? handleSignUp : handleSignIn}
-                  loading={loading}
-                  variant="primary"
-                />
-              </View>
-
-              {/* Divider */}
-              <View style={styles.dividerContainer}>
-                <View style={styles.dividerLine} />
-                <Text style={styles.dividerText}>{t('auth.or')}</Text>
-                <View style={styles.dividerLine} />
-              </View>
-
-              {/* Google Sign In */}
-              <View style={styles.buttonContainer}>
-                <GoogleSignInButton
-                  onPress={handleGoogleSignIn}
-                  loading={loading}
+                  title={
+                    isSignUp
+                      ? t('auth.alreadyHaveAccount')
+                      : t('auth.dontHaveAccount')
+                  }
+                  onPress={() => setIsSignUp(!isSignUp)}
                   disabled={loading}
+                  variant="text"
+                  fullWidth={false}
                 />
               </View>
-
-              {/* Switch Mode */}
-              <Button
-                title={
-                  isSignUp
-                    ? t('auth.alreadyHaveAccount')
-                    : t('auth.dontHaveAccount')
-                }
-                onPress={() => setIsSignUp(!isSignUp)}
-                disabled={loading}
-                variant="text"
-                fullWidth={false}
-              />
-            </View>
+            </ScreenContent>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

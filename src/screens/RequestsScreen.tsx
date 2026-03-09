@@ -28,6 +28,7 @@ import { RootStackParamList } from '../types';
 import Card from '../components/common/Card';
 import Badge from '../components/common/Badge';
 import Button from '../components/common/Button';
+import ScreenContent from '../components/common/ScreenContent';
 import { Typography, Spacing, BorderRadius, Shadows, TouchTarget } from '../constants/theme';
 import type { ThemeColors } from '../constants/theme';
 import { useTheme } from '../utils/theme';
@@ -278,7 +279,12 @@ const RequestsScreen = () => {
   const pendingProfileCount = pendingProfiles.length;
 
   const listHeader = (
-    <View style={[styles.headerWrap, { paddingTop: Platform.OS === 'ios' ? insets.top + Spacing.xs : Spacing.small }]}>
+    <ScreenContent
+      style={[
+        styles.headerWrap,
+        { paddingTop: Platform.OS === 'ios' ? insets.top + Spacing.xs : Spacing.small },
+      ]}
+    >
       {/* Admin Review section – only for admins */}
       {isAdmin && (
         <View style={styles.adminSection}>
@@ -384,7 +390,7 @@ const RequestsScreen = () => {
           </TouchableOpacity>
         </ScrollView>
       </View>
-    </View>
+    </ScreenContent>
   );
 
   return (
@@ -401,7 +407,7 @@ const RequestsScreen = () => {
           ListHeaderComponent={listHeader}
           contentContainerStyle={styles.listContent}
           ListEmptyComponent={
-            <View style={styles.emptyContainer}>
+            <ScreenContent style={styles.emptyContainer}>
               <Text style={styles.emptyText}>
                 {filter === 'mine'
                   ? user
@@ -409,7 +415,7 @@ const RequestsScreen = () => {
                     : 'Sign in to see your requests'
                   : 'No requests yet'}
               </Text>
-            </View>
+            </ScreenContent>
           }
         />
       )}

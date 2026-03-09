@@ -11,6 +11,7 @@ import Card from '../components/common/Card';
 import Button from '../components/common/Button';
 import Badge from '../components/common/Badge';
 import FadeInView from '../components/common/FadeInView';
+import ScreenContent from '../components/common/ScreenContent';
 import { Typography, Spacing, BorderRadius, Shadows } from '../constants/theme';
 import type { ThemeColors } from '../constants/theme';
 import { useTheme } from '../utils/theme';
@@ -253,7 +254,7 @@ const ProfileScreen = () => {
     return (
       <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
         <ScrollView style={styles.guestScroll} showsVerticalScrollIndicator={false}>
-          <View style={styles.guestContainer}>
+          <ScreenContent style={styles.guestContainer}>
             <Text style={styles.guestTitle}>Profile</Text>
 
             <View style={styles.aboutSection}>
@@ -291,7 +292,7 @@ const ProfileScreen = () => {
             >
               <Text style={styles.signInLinkText}>Already have an account? Sign in</Text>
             </TouchableOpacity>
-          </View>
+          </ScreenContent>
         </ScrollView>
       </SafeAreaView>
     );
@@ -329,7 +330,7 @@ const ProfileScreen = () => {
           </View>
         </LinearGradient>
 
-          <View style={styles.content}>
+          <ScreenContent style={styles.content}>
           {/* Profile Info */}
           {user.profile && (
             <Card style={styles.section} padding={Spacing.medium}>
@@ -396,7 +397,7 @@ const ProfileScreen = () => {
               variant="secondary"
             />
           </View>
-        </View>
+        </ScreenContent>
         </ScrollView>
       </FadeInView>
     </SafeAreaView>
